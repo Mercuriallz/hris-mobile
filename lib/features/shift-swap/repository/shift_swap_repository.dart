@@ -18,7 +18,7 @@ class ShiftSwapRepository {
         "/me/shift-swap/candidates",
         queryParameters: {
           "employeeShiftId": employeeShiftId,
-          if (targetDate != null) "targetDate": targetDate,
+          "targetDate": ?targetDate,
         },
       );
 
