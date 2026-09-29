@@ -23,16 +23,7 @@ class AttendanceRequestCubit extends Cubit<AttendanceRequestState> {
     );
   }
 
-  /// Mengunggah swafoto lalu mengirim pengajuan.
-  ///
-  /// Dua langkah, dan yang pertama bisa memakan belasan detik di jaringan
-  /// seluler. Keterangan langkahnya dipancarkan supaya orang tahu aplikasinya
-  /// masih bekerja — tanpa itu, tombol yang diam belasan detik akan ditekan
-  /// lagi, dan pengajuannya jadi dua.
-  ///
-  /// [attachLocation] mati secara bawaan. Untuk koreksi absensi, lokasi saat
-  /// mengisi formulir hampir selalu berbeda dari lokasi saat kejadian —
-  /// mengirimnya tanpa penjelasan justru menyesatkan penyetuju.
+ 
   void submit({
     required String employeeShiftId,
     required String type,

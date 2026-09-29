@@ -215,7 +215,12 @@ class _ApprovalCard extends StatelessWidget {
                   Expanded(
                     child: Text(
                       'Persetujuan ke-${item.currentStep} dari $totalSteps'
-                      '${step.approverRole == 'hr' ? ' · lapis HR' : ''}',
+                      // Perannya disebut hanya kalau bukan atasan langsung.
+                      // Atasan langsung itu bentuk bawaannya — menyebutnya
+                      // di setiap kartu menambah teks tanpa menambah
+                      // informasi. Yang perlu disebut justru yang tidak
+                      // biasa: lapis HR, dan rekan tukar shift.
+                      '${_stepRoleSuffix(step.approverRole)}',
                       style: AppText.label,
                     ),
                   ),
@@ -268,5 +273,16 @@ class _ApprovalCard extends StatelessWidget {
     if (decided == true && context.mounted) {
       context.read<ApprovalCubit>().fetchInbox(silent: true);
     }
+  }
+}
+
+String _stepRoleSuffix(String? role) {
+  switch (role) {
+    case 'hr':
+      return ' · lapis HR';
+    case 'counterpart':
+      return ' · rekan tukar shift';
+    default:
+      return '';
   }
 }

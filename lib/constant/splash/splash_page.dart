@@ -46,7 +46,7 @@ class _SplashPageState extends State<SplashPage> {
             children: [
               SvgPicture.asset(
                 'assets/images/workonix-logo-dark.svg',
-                height: 48,
+                height: 60,
               ),
               const SizedBox(height: 24),
               const CircularProgressIndicator(color: Colors.white),

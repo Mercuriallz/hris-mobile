@@ -350,14 +350,14 @@ class _ProfilePageState extends State<ProfilePage> {
                 subtitle: 'Perangkat terdaftar',
               ),
               const Divider(height: 1, indent: 56),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(56, 12, 16, 14),
-                child: Text(
-                  'Absensi hanya bisa dilakukan dari perangkat ini. Jika Anda '
-                  'ganti HP, minta HR mereset perangkat Anda terlebih dahulu.',
-                  style: AppText.caption,
-                ),
-              ),
+              // Padding(
+              //   padding: const EdgeInsets.fromLTRB(56, 12, 16, 14),
+              //   child: Text(
+              //     'Absensi hanya bisa dilakukan dari perangkat ini. Jika Anda '
+              //     'ganti HP, minta HR mereset perangkat Anda terlebih dahulu.',
+              //     style: AppText.caption,
+              //   ),
+              // ),
             ],
           ),
 

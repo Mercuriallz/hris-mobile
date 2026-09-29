@@ -10,12 +10,7 @@ import 'leave_form_state.dart';
 class LeaveFormCubit extends Cubit<LeaveFormState> {
   LeaveFormCubit() : super(LeaveFormInitial());
 
-  /// Menghitung dampak sebelum dikirim.
-  ///
-  /// Dipanggil setiap kali jenis atau tanggal berubah. Angka yang muncul
-  /// setelah pengajuan terkirim sudah terlambat untuk berguna — dan justru di
-  /// situ gunanya: orang bisa melihat "3 hari kerja, sisa jatah jadi 5"
-  /// sebelum menekan kirim.
+
   void preview({
     required String leaveTypeId,
     required String startDate,
@@ -49,9 +44,6 @@ class LeaveFormCubit extends Cubit<LeaveFormState> {
         return;
       }
 
-      // Penolakan pratinjau bukan kegagalan jaringan — dia berarti
-      // pengajuannya belum sah. Pesannya dari backend sudah menjelaskan
-      // kenapa: tidak ada hari kerja, atau sisa jatah tidak cukup.
       emit(LeaveFormPreviewRejected(
         errorMessageFromResponse(response),
         code: errorCodeFromResponse(response),
@@ -60,12 +52,6 @@ class LeaveFormCubit extends Cubit<LeaveFormState> {
       emit(LeaveFormPreviewRejected(errorMessage(e), code: errorCode(e)));
     }
   }
-
-  /// Mengunggah lampiran kalau ada, lalu mengirim pengajuan.
-  ///
-  /// Unggahan dipisah dari pengiriman, bukan jadi satu multipart. Kalau gagal
-  /// di tengah — dan foto surat dokter di jaringan seluler sering gagal —
-  /// yang perlu diulang cuma unggahannya, bukan seluruh formulir.
   void submit({
     required String leaveTypeId,
     required String startDate,

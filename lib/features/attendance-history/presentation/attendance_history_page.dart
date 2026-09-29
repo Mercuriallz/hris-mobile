@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hris_mobile/constant/theme/app_widget.dart';
+import 'package:hris_mobile/features/shift-swap/presentation/shift_swap_page.dart';
 import 'package:intl/intl.dart';
 
-import '../../../constant/theme/app_color.dart';
-import '../../../constant/theme/app_text.dart';
+
 import '../../attendance_request/presentation/attendance_request_form_page.dart';
 import '../../attendance_request/presentation/attendance_request_list_page.dart';
 import '../cubit/attendance_history_cubit.dart';
@@ -53,10 +52,34 @@ class _AttendanceHistoryPageState extends State<AttendanceHistoryPage> {
           }
 
           if (state is AttendanceHistoryError) {
-            return ErrorState(
-              message: state.message,
-              onRetry: () =>
-                  context.read<AttendanceHistoryCubit>().fetchHistory(),
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(32),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.cloud_off,
+                      size: 56,
+                      color: Theme.of(context).disabledColor,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      state.message,
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                    const SizedBox(height: 20),
+                    FilledButton.icon(
+                      onPressed: () => context
+                          .read<AttendanceHistoryCubit>()
+                          .fetchHistory(),
+                      icon: const Icon(Icons.refresh),
+                      label: const Text('Coba Lagi'),
+                    ),
+                  ],
+                ),
+              ),
             );
           }
 
@@ -84,7 +107,7 @@ class _AttendanceHistoryPageState extends State<AttendanceHistoryPage> {
                         child: ListView.separated(
                           padding: const EdgeInsets.all(16),
                           itemCount: loaded.rows.length,
-                          separatorBuilder: (_, _) => const SizedBox(height: 8),
+                          separatorBuilder: (_, __) => const SizedBox(height: 8),
                           itemBuilder: (context, index) =>
                               _DayTile(row: loaded.rows[index]),
                         ),
@@ -112,7 +135,7 @@ class _MonthSwitcher extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: AppColor.surface,
+      color: Colors.white,
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -121,10 +144,12 @@ class _MonthSwitcher extends StatelessWidget {
             icon: const Icon(Icons.chevron_left),
             onPressed: onPrevious,
           ),
-          Text(label, style: AppText.h2),
+          Text(label, style: Theme.of(context).textTheme.titleMedium),
           IconButton(
             icon: const Icon(Icons.chevron_right),
-            
+            // null berarti tombolnya mati sendiri. Riwayat masa depan tidak
+            // ada isinya, dan tombol yang selalu bisa ditekan membuat orang
+            // menggeser terus tanpa menemukan apa pun.
             onPressed: onNext,
           ),
         ],
@@ -141,22 +166,19 @@ class _SummaryBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
-        color: AppColor.surface,
-        border: Border(bottom: BorderSide(color: AppColor.border)),
-      ),
+      color: Colors.white,
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
       child: Row(
         children: [
           _SummaryItem(
             label: 'Hadir',
             value: '${summary.presentDays}',
-            color: AppColor.success,
+            color: Colors.green.shade700,
           ),
           _SummaryItem(
             label: 'Terlambat',
             value: '${summary.lateDays}',
-            color: AppColor.warning,
+            color: Colors.orange.shade800,
             // Total menitnya penting justru karena jumlah harinya sendiri
             // tidak cukup: terlambat 3 hari masing-masing 2 menit berbeda
             // jauh dari terlambat 3 hari masing-masing sejam.
@@ -167,7 +189,9 @@ class _SummaryBar extends StatelessWidget {
           _SummaryItem(
             label: 'Tidak absen',
             value: '${summary.absentDays}',
-            color: summary.absentDays > 0 ? AppColor.danger : null,
+            color: summary.absentDays > 0
+                ? Theme.of(context).colorScheme.error
+                : null,
           ),
           _SummaryItem(
             label: 'Cuti',
@@ -199,11 +223,19 @@ class _SummaryItem extends StatelessWidget {
         children: [
           Text(
             value,
-            style: AppText.h1.copyWith(color: color, fontSize: 24),
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  color: color,
+                  fontWeight: FontWeight.bold,
+                ),
           ),
-          Text(label, style: AppText.label),
+          Text(label, style: Theme.of(context).textTheme.labelSmall),
           if (caption != null)
-            Text(caption!, style: AppText.label.copyWith(color: color)),
+            Text(
+              caption!,
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    color: color,
+                  ),
+            ),
         ],
       ),
     );
@@ -217,11 +249,33 @@ class _EmptyMonth extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return EmptyState(
-      icon: Icons.event_busy_outlined,
-      title: 'Tidak ada jadwal di $month',
-      message: 'Anda tidak punya shift yang dijadwalkan di bulan ini. Kalau '
-          'seharusnya ada, hubungi HR untuk memeriksa roster.',
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.event_busy_outlined,
+              size: 56,
+              color: Theme.of(context).disabledColor,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Tidak ada jadwal di $month',
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.titleSmall,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Anda tidak punya shift yang dijadwalkan di bulan ini. Kalau '
+              'seharusnya ada, hubungi HR untuk memeriksa roster.',
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -255,6 +309,47 @@ class _DayTile extends StatelessWidget {
     return age <= 30;
   }
 
+  /// Baris mana yang bisa ditukar shiftnya.
+  ///
+  /// Hanya yang shiftnya BELUM dimulai. Riwayat menampilkan masa lalu dan
+  /// masa depan di bulan yang sama — dan tukar shift cuma masuk akal untuk
+  /// yang belum terjadi.
+  ///
+  /// Status 'scheduled' berarti shiftnya belum berakhir, tapi itu belum
+  /// cukup: shift hari ini yang sudah dimulai juga 'scheduled'. Yang dipakai
+  /// jam mulainya, bukan statusnya.
+  bool get _canSwap {
+    if (row.scheduledStart == null) return false;
+
+    try {
+      return DateTime.parse(row.scheduledStart!).isAfter(DateTime.now());
+    } catch (_) {
+      return false;
+    }
+  }
+
+  Future<void> _openSwap(BuildContext context) async {
+    if (row.employeeShiftId == null) return;
+
+    final submitted = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ShiftSwapFormPage(
+          employeeShiftId: row.employeeShiftId!,
+          myShiftName: row.shiftName ?? 'Shift',
+          myWorkDate: row.workDate ?? '',
+        ),
+      ),
+    );
+
+    // Riwayat dimuat ulang meski jadwalnya belum berubah — pengajuan masih
+    // menunggu rekan dan atasan. Yang dimuat ulang bukan hasilnya, melainkan
+    // kepastian bahwa tadi berhasil terkirim.
+    if (submitted == true && context.mounted) {
+      context.read<AttendanceHistoryCubit>().fetchHistory();
+    }
+  }
+
   Future<void> _openForm(BuildContext context) async {
     final submitted = await Navigator.push<bool>(
       context,
@@ -271,69 +366,53 @@ class _DayTile extends StatelessWidget {
     }
   }
 
-  ({String label, StatusTone tone, IconData icon}) _badge() {
+  ({String label, Color color, IconData icon}) _badge(BuildContext context) {
     switch (row.status) {
       case 'present':
         return (
           label: 'Hadir',
-          tone: StatusTone.success,
+          color: Colors.green.shade700,
           icon: Icons.check_circle_outline,
         );
 
-      // Terlambat tetap hadir, nadanya saja yang beda. Ikon silang untuk orang
-      // yang datang dan bekerja itu penghakiman, bukan informasi.
+      // Terlambat tetap hadir, warnanya saja yang beda. Ikon silang untuk
+      // orang yang datang dan bekerja itu penghakiman, bukan informasi.
       case 'late':
         return (
           label: 'Hadir, terlambat',
-          tone: StatusTone.warning,
+          color: Colors.orange.shade800,
           icon: Icons.check_circle_outline,
         );
       case 'incomplete':
         return (
           label: 'Tidak clock out',
-          tone: StatusTone.warning,
+          color: Colors.orange.shade800,
           icon: Icons.error_outline,
         );
       case 'absent':
         return (
           label: 'Tidak absen',
-          tone: StatusTone.danger,
+          color: Theme.of(context).colorScheme.error,
           icon: Icons.cancel_outlined,
         );
       case 'on_leave':
         return (
           label: row.leaveTypeName ?? 'Cuti',
-          tone: StatusTone.info,
+          color: Colors.blue.shade700,
           icon: Icons.beach_access_outlined,
         );
       default:
         return (
           label: 'Belum berakhir',
-          tone: StatusTone.neutral,
+          color: Theme.of(context).disabledColor,
           icon: Icons.schedule,
         );
     }
   }
 
-  ({Color fg, Color bg}) _toneColor(StatusTone tone) {
-    switch (tone) {
-      case StatusTone.success:
-        return (fg: AppColor.success, bg: AppColor.successSurface);
-      case StatusTone.warning:
-        return (fg: AppColor.warning, bg: AppColor.warningSurface);
-      case StatusTone.danger:
-        return (fg: AppColor.danger, bg: AppColor.dangerSurface);
-      case StatusTone.info:
-        return (fg: AppColor.info, bg: AppColor.infoSurface);
-      case StatusTone.neutral:
-        return (fg: AppColor.textSecondary, bg: AppColor.background);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    final badge = _badge();
-    final tone = _toneColor(badge.tone);
+    final badge = _badge(context);
     final late = row.lateMinutes ?? 0;
 
     return Card(
@@ -342,15 +421,7 @@ class _DayTile extends StatelessWidget {
         padding: const EdgeInsets.all(14),
         child: Row(
           children: [
-            Container(
-              width: 38,
-              height: 38,
-              decoration: BoxDecoration(
-                color: tone.bg,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Icon(badge.icon, color: tone.fg, size: 19),
-            ),
+            Icon(badge.icon, color: badge.color, size: 22),
             const SizedBox(width: 12),
 
             Expanded(
@@ -364,26 +435,34 @@ class _DayTile extends StatelessWidget {
                             ? '-'
                             : _dayFormat
                                 .format(DateTime.parse(row.workDate!)),
-                        style: AppText.bodyStrong,
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleSmall
+                            ?.copyWith(fontWeight: FontWeight.w600),
                       ),
                       const SizedBox(width: 8),
-                      Text(row.shiftName ?? '', style: AppText.caption),
+                      Text(
+                        row.shiftName ?? '',
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
                     ],
                   ),
                   const SizedBox(height: 2),
                   Text(
                     badge.label,
-                    style: AppText.caption.copyWith(
-                      color: tone.fg,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: badge.color,
+                          fontWeight: FontWeight.w600,
+                        ),
                   ),
 
                   if (late > 0) ...[
                     const SizedBox(height: 2),
                     Text(
                       'Terlambat $late menit',
-                      style: AppText.label.copyWith(color: AppColor.warning),
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                            color: Colors.orange.shade900,
+                          ),
                     ),
                   ],
 
@@ -391,7 +470,7 @@ class _DayTile extends StatelessWidget {
                     const SizedBox(height: 2),
                     Text(
                       'Ditandai untuk ditinjau HR',
-                      style: AppText.label,
+                      style: Theme.of(context).textTheme.labelSmall,
                     ),
                   ],
 
@@ -414,6 +493,24 @@ class _DayTile extends StatelessWidget {
                       ),
                     ),
                   ],
+
+                  // Tukar shift untuk yang BELUM terjadi, koreksi untuk yang
+                  // sudah. Keduanya tidak pernah muncul bersamaan di satu
+                  // baris — syaratnya saling meniadakan.
+                  if (_canSwap) ...[
+                    const SizedBox(height: 8),
+                    TextButton.icon(
+                      onPressed: () => _openSwap(context),
+                      icon: const Icon(Icons.swap_horiz, size: 18),
+                      label: const Text('Tukar Shift'),
+                      style: TextButton.styleFrom(
+                        padding: EdgeInsets.zero,
+                        minimumSize: const Size(0, 32),
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        visualDensity: VisualDensity.compact,
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -424,8 +521,14 @@ class _DayTile extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Text(_time(row.clockInAt), style: AppText.bodyStrong),
-                Text(_time(row.clockOutAt), style: AppText.caption),
+                Text(
+                  _time(row.clockInAt),
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+                Text(
+                  _time(row.clockOutAt),
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
               ],
             ),
           ],

@@ -26,10 +26,10 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
-	<key>UIApplicationSceneManifest</key>
 	<key>NSCameraUsageDescription</key>
     <string>Kamera dipakai memverifikasi wajah saat absensi. Fotonya diproses di perangkat ini dan tidak dikirim ke mana pun.</string>
-	<dict>
+    <key>UIApplicationSceneManifest</key>
+        <dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
 		<false/>
 		<key>UISceneConfigurations</key>

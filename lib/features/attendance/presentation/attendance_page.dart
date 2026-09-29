@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:hris_mobile/constant/theme/app_widget.dart';
 import 'package:hris_mobile/features/attendance-history/presentation/attendance_history_page.dart';
+import 'package:hris_mobile/features/overtime/presentation/overtime_page.dart';
 import 'package:intl/intl.dart';
 
 import '../../../constant/theme/app_color.dart';
@@ -90,7 +91,7 @@ class _AttendancePageState extends State<AttendancePage> {
 
     if (!mounted) return;
 
-       result.fold(
+    result.fold(
       (l) => debugPrint('Ringkasan gagal: $l'),
       (response) => setState(() => _summary = response.data),
     );
@@ -146,8 +147,7 @@ class _AttendancePageState extends State<AttendancePage> {
       ),
     );
 
-    // Batal berarti batal. Melanjutkan tanpa verifikasi di sini akan memberi
-    // jalan keluar yang membatalkan seluruh gunanya verifikasi.
+   
     return path ?? '';
   }
 
@@ -208,8 +208,9 @@ class _AttendancePageState extends State<AttendancePage> {
         builder: (context, state) {
           final cards = state is AttendanceLoaded ? state.cards : <ShiftCard>[];
           final primary = _pickPrimary(cards);
-          final others =
-              cards.where((c) => c.employeeShiftId != primary?.employeeShiftId);
+          final others = cards.where(
+            (c) => c.employeeShiftId != primary?.employeeShiftId,
+          );
 
           return RefreshIndicator(
             onRefresh: () async {
@@ -228,26 +229,26 @@ class _AttendancePageState extends State<AttendancePage> {
                   offset: const Offset(0, -28),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: state is AttendanceLoading ||
-                            state is AttendanceInitial
+                    child:
+                        state is AttendanceLoading || state is AttendanceInitial
                         ? const _LoadingCard()
                         : state is AttendanceError
-                            ? _ErrorCard(
-                                message: state.message,
-                                onRetry: () => context
-                                    .read<AttendanceCubit>()
-                                    .fetchShifts(),
-                              )
-                            : primary == null
-                                ? const _NoShiftCard()
-                                : _PrimaryShiftCard(
-                                    card: primary,
-                                    now: _now,
-                                    isProcessing: state is AttendanceLoaded &&
-                                        state.processingShiftId ==
-                                            primary.employeeShiftId,
-                                    onNeedPhoto: _photoForVerification,
-                                  ),
+                        ? _ErrorCard(
+                            message: state.message,
+                            onRetry: () =>
+                                context.read<AttendanceCubit>().fetchShifts(),
+                          )
+                        : primary == null
+                        ? const _NoShiftCard()
+                        : _PrimaryShiftCard(
+                            card: primary,
+                            now: _now,
+                            isProcessing:
+                                state is AttendanceLoaded &&
+                                state.processingShiftId ==
+                                    primary.employeeShiftId,
+                            onNeedPhoto: _photoForVerification,
+                          ),
                   ),
                 ),
 
@@ -318,13 +319,23 @@ class _AttendancePageState extends State<AttendancePage> {
                         _MenuRow(
                           icon: Icons.inbox_outlined,
                           title: 'Pengajuan Koreksi',
-                          subtitle:
-                              'Status pengajuan yang sudah Anda kirim',
+                          subtitle: 'Status pengajuan yang sudah Anda kirim',
                           onTap: () => Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) =>
-                                  const AttendanceRequestListPage(),
+                              builder: (_) => const AttendanceRequestListPage(),
+                            ),
+                          ),
+                        ),
+                        _MenuRow(
+                          icon: Icons.more_time_outlined,
+                          title: 'Lembur',
+                          subtitle:
+                              'Laporkan lembur dan lihat jam setara bulan ini',
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const OvertimePage(),
                             ),
                           ),
                         ),
@@ -399,10 +410,7 @@ class _Header extends StatelessWidget {
               style: AppText.body.copyWith(color: Colors.white70),
             ),
             if (name.isNotEmpty)
-              Text(
-                name,
-                style: AppText.h1.copyWith(color: Colors.white),
-              ),
+              Text(name, style: AppText.h1.copyWith(color: Colors.white)),
             const SizedBox(height: 16),
             Row(
               crossAxisAlignment: CrossAxisAlignment.end,
@@ -457,9 +465,8 @@ class _PrimaryShiftCard extends StatelessWidget {
 
   static final _timeFormat = DateFormat('HH:mm');
 
-  String _time(String? iso) => iso == null
-      ? '--:--'
-      : _timeFormat.format(DateTime.parse(iso).toLocal());
+  String _time(String? iso) =>
+      iso == null ? '--:--' : _timeFormat.format(DateTime.parse(iso).toLocal());
 
   ({String label, StatusTone tone, IconData icon}) get _badge {
     switch (card.state) {
@@ -467,31 +474,31 @@ class _PrimaryShiftCard extends StatelessWidget {
         return (
           label: 'Selesai',
           tone: StatusTone.success,
-          icon: Icons.check_circle_outline
+          icon: Icons.check_circle_outline,
         );
       case 'open':
         return (
           label: 'Sedang bekerja',
           tone: StatusTone.info,
-          icon: Icons.play_circle_outline
+          icon: Icons.play_circle_outline,
         );
       case 'missed':
         return (
           label: 'Terlewat',
           tone: StatusTone.danger,
-          icon: Icons.cancel_outlined
+          icon: Icons.cancel_outlined,
         );
       case 'incomplete':
         return (
           label: 'Tidak lengkap',
           tone: StatusTone.danger,
-          icon: Icons.error_outline
+          icon: Icons.error_outline,
         );
       default:
         return (
           label: 'Belum absen',
           tone: StatusTone.neutral,
-          icon: Icons.schedule
+          icon: Icons.schedule,
         );
     }
   }
@@ -541,7 +548,8 @@ class _PrimaryShiftCard extends StatelessWidget {
 
           InfoRow(
             icon: Icons.schedule,
-            text: '${_time(card.startAt)} – ${_time(card.endAt)}'
+            text:
+                '${_time(card.startAt)} – ${_time(card.endAt)}'
                 '${card.crossesMidnight == true ? ' (lewat tengah malam)' : ''}',
           ),
           const SizedBox(height: 6),
@@ -564,10 +572,7 @@ class _PrimaryShiftCard extends StatelessWidget {
                 children: [
                   _Stat(label: 'MASUK', value: _time(attendance.clockInAt)),
                   _Divider(),
-                  _Stat(
-                    label: 'PULANG',
-                    value: _time(attendance.clockOutAt),
-                  ),
+                  _Stat(label: 'PULANG', value: _time(attendance.clockOutAt)),
                   _Divider(),
                   _Stat(
                     label: 'TERLAMBAT',
@@ -602,8 +607,7 @@ class _PrimaryShiftCard extends StatelessWidget {
                   Expanded(
                     child: Text(
                       'Absensi ini ditandai untuk ditinjau HR.',
-                      style: AppText.caption
-                          .copyWith(color: AppColor.warning),
+                      style: AppText.caption.copyWith(color: AppColor.warning),
                     ),
                   ),
                 ],
@@ -654,8 +658,9 @@ class _PrimaryShiftCard extends StatelessWidget {
                 ),
               ),
               style: FilledButton.styleFrom(
-                backgroundColor:
-                    canClockIn ? AppColor.primary : AppColor.warning,
+                backgroundColor: canClockIn
+                    ? AppColor.primary
+                    : AppColor.warning,
                 minimumSize: const Size.fromHeight(54),
               ),
             ),
@@ -663,18 +668,15 @@ class _PrimaryShiftCard extends StatelessWidget {
             const SizedBox(height: 14),
             // Kalau tombolnya tidak ada, alasannya harus disebut. Tombol yang
             // hilang tanpa penjelasan terbaca sebagai kerusakan.
-            Text(
-              switch (card.state) {
-                'upcoming' =>
-                  'Clock in bisa mulai ${_time(card.clockInOpensAt)}.',
-                'missed' =>
-                  'Shift ini berakhir tanpa absensi. Ajukan koreksi lewat tab Riwayat.',
-                'incomplete' =>
-                  'Batas clock out sudah lewat. Ajukan koreksi lewat tab Riwayat.',
-                _ => 'Shift ini sudah selesai.',
-              },
-              style: AppText.caption,
-            ),
+            Text(switch (card.state) {
+              'upcoming' =>
+                'Clock in bisa mulai ${_time(card.clockInOpensAt)}.',
+              'missed' =>
+                'Shift ini berakhir tanpa absensi. Ajukan koreksi lewat tab Riwayat.',
+              'incomplete' =>
+                'Batas clock out sudah lewat. Ajukan koreksi lewat tab Riwayat.',
+              _ => 'Shift ini sudah selesai.',
+            }, style: AppText.caption),
           ],
         ],
       ),
@@ -708,11 +710,8 @@ class _Stat extends StatelessWidget {
 
 class _Divider extends StatelessWidget {
   @override
-  Widget build(BuildContext context) => Container(
-        width: 1,
-        height: 30,
-        color: AppColor.border,
-      );
+  Widget build(BuildContext context) =>
+      Container(width: 1, height: 30, color: AppColor.border);
 }
 
 /// Shift lain: kemarin yang belum selesai, atau besok.
@@ -725,17 +724,18 @@ class _SecondaryShiftRow extends StatelessWidget {
   static final _timeFormat = DateFormat('HH:mm');
   static final _dayFormat = DateFormat('EEE, d MMM', 'id_ID');
 
-  String _time(String? iso) => iso == null
-      ? '--:--'
-      : _timeFormat.format(DateTime.parse(iso).toLocal());
+  String _time(String? iso) =>
+      iso == null ? '--:--' : _timeFormat.format(DateTime.parse(iso).toLocal());
 
   String get _dateLabel {
     if (card.workDate == null) return '';
 
     final date = DateTime.parse(card.workDate!);
-    final diff = DateTime(date.year, date.month, date.day)
-        .difference(DateTime(now.year, now.month, now.day))
-        .inDays;
+    final diff = DateTime(
+      date.year,
+      date.month,
+      date.day,
+    ).difference(DateTime(now.year, now.month, now.day)).inDays;
 
     if (diff == 0) return 'Hari ini';
     if (diff == -1) return 'Kemarin';
@@ -961,8 +961,10 @@ class _PendingBanner extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     [
-                      ...types.map((t) =>
-                          '${kRequestTypeLabels[t.requestType] ?? t.requestType} ${t.count}'),
+                      ...types.map(
+                        (t) =>
+                            '${kRequestTypeLabels[t.requestType] ?? t.requestType} ${t.count}',
+                      ),
                       // if (oldest > 0) 'tertua $oldest hari',
                     ].join(' · '),
                     style: AppText.caption.copyWith(
@@ -1075,9 +1077,9 @@ class _MonthSummary extends StatelessWidget {
 
 /// Pemisah tipis antar statistik, senada dengan _Divider di kartu shift.
 Widget _statDivider() => Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4),
-      child: _Divider(),
-    );
+  padding: const EdgeInsets.symmetric(horizontal: 4),
+  child: _Divider(),
+);
 
 class _Stat2 extends StatelessWidget {
   final IconData icon;
@@ -1100,10 +1102,7 @@ class _Stat2 extends StatelessWidget {
         children: [
           Icon(icon, size: 15, color: color),
           const SizedBox(height: 4),
-          Text(
-            value,
-            style: AppText.h1.copyWith(fontSize: 20, color: color),
-          ),
+          Text(value, style: AppText.h1.copyWith(fontSize: 20, color: color)),
           Text(label, style: AppText.caption),
         ],
       ),
@@ -1124,9 +1123,11 @@ class _UpcomingShifts extends StatelessWidget {
   /// "Hari ini" dan "Besok" dibaca lebih cepat daripada "Rab, 12 Sep" —
   /// dan itu yang biasanya ingin diketahui orang dari kartu paling kiri.
   String _dayLabel(DateTime date) {
-    final diff = DateTime(date.year, date.month, date.day)
-        .difference(DateTime(now.year, now.month, now.day))
-        .inDays;
+    final diff = DateTime(
+      date.year,
+      date.month,
+      date.day,
+    ).difference(DateTime(now.year, now.month, now.day)).inDays;
 
     if (diff == 0) return 'Hari ini';
     if (diff == 1) return 'Besok';
@@ -1183,8 +1184,11 @@ class _UpcomingShifts extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        Icon(Icons.calendar_today_outlined,
-                            size: 12, color: accent),
+                        Icon(
+                          Icons.calendar_today_outlined,
+                          size: 12,
+                          color: accent,
+                        ),
                         const SizedBox(width: 4),
                         Expanded(
                           child: Text(

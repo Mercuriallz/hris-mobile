@@ -13,12 +13,6 @@ import '../cubit/approval_cubit.dart';
 
 import '../cubit/approval_state.dart';
 
-/// Detail pengajuan beserta buktinya, dengan tombol keputusan di bawah.
-///
-/// Halaman ini tidak tahu apa pun tentang absensi, cuti, maupun lembur — dia
-/// merender judul, daftar keterangan, catatan, dan foto yang dikirim backend.
-/// Begitu cuti dan lembur masuk ke aplikasi, halaman ini sudah jalan tanpa
-/// diubah.
 class ApprovalDetailPage extends StatefulWidget {
   final String approvalId;
 
@@ -36,7 +30,6 @@ class _ApprovalDetailPageState extends State<ApprovalDetailPage> {
   }
 
   @override
-
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Detail Pengajuan')),
@@ -73,9 +66,9 @@ class _ApprovalDetailPageState extends State<ApprovalDetailPage> {
             if (state is ApprovalDetailError) {
               return ErrorState(
                 message: state.message,
-                onRetry: () => context
-                    .read<ApprovalDetailCubit>()
-                    .fetchDetail(widget.approvalId),
+                onRetry: () => context.read<ApprovalDetailCubit>().fetchDetail(
+                  widget.approvalId,
+                ),
               );
             }
 
@@ -97,7 +90,6 @@ class _DetailBody extends StatelessWidget {
 
   const _DetailBody({required this.approval, required this.detail});
 
-
   bool get _isPending =>
       approval.status == 'pending' || approval.status == null;
 
@@ -106,7 +98,8 @@ class _DetailBody extends StatelessWidget {
     return BlocBuilder<ApprovalCubit, ApprovalState>(
       buildWhen: (previous, current) => current is ApprovalDeciding,
       builder: (context, approvalState) {
-        final isDeciding = approvalState is ApprovalDeciding &&
+        final isDeciding =
+            approvalState is ApprovalDeciding &&
             approvalState.approvalId == approval.id;
 
         return Column(
@@ -115,11 +108,7 @@ class _DetailBody extends StatelessWidget {
               child: ListView(
                 padding: const EdgeInsets.all(16),
                 children: [
-                  // Foto paling atas, sebelum keterangan apa pun.
-                  //
-                  // Untuk koreksi absensi inilah satu-satunya bukti — menaruhnya
-                  // di bawah daftar keterangan berarti penyetuju bisa
-                  // memutuskan tanpa pernah menggulir sampai ke sana.
+                
                   if (detail.photoUrl != null)
                     _PhotoCard(
                       url: detail.photoUrl!,
@@ -174,11 +163,13 @@ class _DetailBody extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(vertical: 6),
                         child: Column(
                           children: approval.steps!
-                              .map((step) => _StepRow(
-                                    step: step,
-                                    isCurrent:
-                                        step.stepOrder == approval.currentStep,
-                                  ))
+                              .map(
+                                (step) => _StepRow(
+                                  step: step,
+                                  isCurrent:
+                                      step.stepOrder == approval.currentStep,
+                                ),
+                              )
                               .toList(),
                         ),
                       ),
@@ -190,11 +181,6 @@ class _DetailBody extends StatelessWidget {
               ),
             ),
 
-            // Tombol keputusan menempel di bawah, tidak ikut menggulir.
-            //
-            // Halaman detail bisa panjang, dan tombol yang harus dicari dengan
-            // menggulir membuat orang kembali ke daftar dan memutuskan dari
-            // sana — tanpa melihat bukti yang baru saja dibuka.
             if (_isPending)
               _DecisionBar(
                 approvalId: approval.id!,
@@ -223,8 +209,7 @@ class _PhotoCard extends StatelessWidget {
         Text(label.toUpperCase(), style: AppText.label),
         const SizedBox(height: 8),
         GestureDetector(
-          // Diketuk untuk melihat penuh. Swafoto di kartu kecil sering tidak
-          // cukup untuk memastikan orangnya memang di lokasi yang diakui.
+     
           onTap: () => Navigator.push(
             context,
             MaterialPageRoute(
@@ -263,8 +248,9 @@ class _PhotoCard extends StatelessWidget {
                           'Foto gagal dimuat. Tautannya mungkin sudah '
                           'kedaluwarsa — tarik ke bawah untuk memuat ulang.',
                           textAlign: TextAlign.center,
-                          style: AppText.caption
-                              .copyWith(color: AppColor.danger),
+                          style: AppText.caption.copyWith(
+                            color: AppColor.danger,
+                          ),
                         ),
                       ],
                     ),
@@ -409,9 +395,7 @@ class _FieldRow extends StatelessWidget {
             width: 130,
             child: Text(field.label ?? '', style: AppText.caption),
           ),
-          Expanded(
-            child: Text(field.value ?? '—', style: AppText.bodyStrong),
-          ),
+          Expanded(child: Text(field.value ?? '—', style: AppText.bodyStrong)),
         ],
       ),
     );
@@ -421,6 +405,19 @@ class _FieldRow extends StatelessWidget {
 class _StepRow extends StatelessWidget {
   final DetailStep step;
   final bool isCurrent;
+
+  String get _roleLabel {
+    switch (step.approverRole) {
+      case 'hr':
+        return 'HR';
+      case 'line_manager':
+        return 'Atasan langsung';
+      case 'counterpart':
+        return 'Rekan tukar shift';
+      default:
+        return 'Penyetuju';
+    }
+  }
 
   const _StepRow({required this.step, required this.isCurrent});
 
@@ -433,11 +430,17 @@ class _StepRow extends StatelessWidget {
       case 'rejected':
         return (color: AppColor.danger, icon: Icons.cancel);
       case 'skipped':
-        return (color: AppColor.textDisabled, icon: Icons.remove_circle_outline);
+        return (
+          color: AppColor.textDisabled,
+          icon: Icons.remove_circle_outline,
+        );
       default:
         return isCurrent
             ? (color: AppColor.warning, icon: Icons.radio_button_checked)
-            : (color: AppColor.textDisabled, icon: Icons.radio_button_unchecked);
+            : (
+                color: AppColor.textDisabled,
+                icon: Icons.radio_button_unchecked,
+              );
     }
   }
 
@@ -456,18 +459,22 @@ class _StepRow extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Langkah HR tidak menunjuk orang, jadi namanya null. Yang
+                // ditampilkan perannya — tanpa ini barisnya terbaca
+                // "Penyetuju" di atas "HR", dua kata untuk satu keterangan.
                 Text(
-                  step.approverNameSnapshot ?? 'Penyetuju',
+                  step.approverNameSnapshot ?? _roleLabel,
                   style: AppText.body.copyWith(
                     fontWeight: isCurrent ? FontWeight.w700 : FontWeight.w400,
                   ),
                 ),
                 Text(
                   [
-                    step.approverRole == 'hr' ? 'HR' : 'Atasan langsung',
+                    _roleLabel,
                     if (step.decidedAt != null)
-                      _dateFormat
-                          .format(DateTime.parse(step.decidedAt!).toLocal()),
+                      _dateFormat.format(
+                        DateTime.parse(step.decidedAt!).toLocal(),
+                      ),
                     if (isCurrent && step.decidedAt == null) 'menunggu',
                   ].join(' · '),
                   style: AppText.label,

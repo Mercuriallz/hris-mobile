@@ -10,11 +10,6 @@ import '../cubit/leave_state.dart';
 import '../model/leave_model.dart';
 import 'leave_form_page.dart';
 
-/// Halaman cuti: saldo di atas, riwayat pengajuan di bawah.
-///
-/// Saldo ditaruh paling atas karena itu yang dicari orang saat membuka halaman
-/// ini — pertanyaannya hampir selalu "sisa cuti saya berapa", bukan "apa saja
-/// yang sudah saya ajukan".
 class LeavePage extends StatefulWidget {
   const LeavePage({super.key});
 
