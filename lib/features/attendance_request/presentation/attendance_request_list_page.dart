@@ -10,11 +10,6 @@ import '../cubit/attendance_request_state.dart';
 import '../model/attendance_request_model.dart';
 import '../model/create_attendance_request_model.dart';
 
-/// Daftar pengajuan koreksi milik sendiri, beserta statusnya.
-///
-/// Ada karena pengajuan yang terkirim lalu hilang dari pandangan membuat orang
-/// mengajukan ulang — dan pengajuan kembar untuk shift yang sama menyulitkan
-/// penyetuju, bukan pengaju.
 class AttendanceRequestListPage extends StatefulWidget {
   const AttendanceRequestListPage({super.key});
 
@@ -35,8 +30,7 @@ class _AttendanceRequestListPageState extends State<AttendanceRequestListPage> {
     return Scaffold(
       appBar: AppBar(title: const Text('Pengajuan Koreksi')),
       body: BlocBuilder<AttendanceRequestCubit, AttendanceRequestState>(
-        // State pengiriman tidak boleh membangun ulang layar ini — dia milik
-        // formulir, dan di sini cuma akan mengosongkan daftarnya sesaat.
+      
         buildWhen: (previous, current) =>
             current is! AttendanceRequestSubmitting &&
             current is! AttendanceRequestSubmitted &&
@@ -186,12 +180,6 @@ class _RequestTile extends StatelessWidget {
               ),
             ],
 
-            // Alasan penolakan ditampilkan paling menonjol, dengan latar merah.
-            //
-            // Ini yang pertama dicari orang begitu pengajuannya ditolak —
-            // menyembunyikannya di balik badge "Ditolak" berarti dia akan
-            // bertanya ke HR, dan itu persis yang ingin dihindari dengan
-            // adanya aplikasi ini.
             if (request.approvalStatus == 'rejected') ...[
               const SizedBox(height: 10),
               _DecisionBox(

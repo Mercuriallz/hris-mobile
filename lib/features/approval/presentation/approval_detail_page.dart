@@ -459,9 +459,7 @@ class _StepRow extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Langkah HR tidak menunjuk orang, jadi namanya null. Yang
-                // ditampilkan perannya — tanpa ini barisnya terbaca
-                // "Penyetuju" di atas "HR", dua kata untuk satu keterangan.
+            
                 Text(
                   step.approverNameSnapshot ?? _roleLabel,
                   style: AppText.body.copyWith(
@@ -480,10 +478,7 @@ class _StepRow extends StatelessWidget {
                   style: AppText.label,
                 ),
 
-                // Catatan keputusan ditampilkan di rantainya, bukan cuma di
-                // kartu daftar. Penyetuju lapis kedua perlu tahu apa yang
-                // dituliskan lapis pertama — kalau tidak, dia memutuskan tanpa
-                // konteks yang sudah ada.
+     
                 if (step.note?.isNotEmpty ?? false) ...[
                   const SizedBox(height: 4),
                   Text(

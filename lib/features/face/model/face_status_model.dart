@@ -22,17 +22,12 @@ class FaceStatusData {
   bool? enrolled;
   String? enrolledAt;
 
-  /// Versi model saat wajahnya didaftarkan.
-  ///
-  /// Kalau berbeda dari versi di aplikasi sekarang, wajahnya perlu didaftarkan
-  /// ulang — embedding dari model berbeda tidak bisa dibandingkan.
+
   String? modelVersion;
 
-  /// true berarti absensi ditolak kalau wajahnya belum terdaftar.
   bool? isRequired;
 
-  /// false berarti verifikasi wajah belum dinyalakan di perusahaan ini, dan
-  /// kamera tidak perlu dibuka saat clock in.
+
   bool? verificationEnabled;
 
   FaceStatusData({
@@ -47,7 +42,6 @@ class FaceStatusData {
     enrolled = json['enrolled'];
     enrolledAt = json['enrolledAt'];
     modelVersion = json['modelVersion'];
-    // 'required' di JSON, bukan nama field Dart — 'required' kata kunci.
     isRequired = json['required'];
     verificationEnabled = json['verificationEnabled'];
   }
@@ -60,10 +54,8 @@ class FaceStatusData {
         'verificationEnabled': verificationEnabled,
       };
 
-  /// Apakah kamera perlu dibuka saat clock in.
   bool get needsVerification => verificationEnabled ?? false;
 
-  /// Apakah wajahnya perlu didaftarkan ulang karena modelnya berganti.
   bool needsReenroll(String currentModelVersion) =>
       (enrolled ?? false) &&
       modelVersion != null &&

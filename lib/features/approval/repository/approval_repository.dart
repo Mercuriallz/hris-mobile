@@ -5,13 +5,8 @@ import '../../../helper/dio_service.dart';
 import '../../../helper/error_message.dart';
 import '../model/approval_model.dart';
 
-/// Hanya GET. Keputusan ada di cubit.
 class ApprovalRepository {
-  /// Yang menunggu keputusan saya.
-  ///
-  /// Backend sudah menyaring: hanya langkah yang memang sedang giliran orang
-  /// ini. Lapis ketiga tidak muncul sebelum lapis kedua memutuskan, jadi
-  /// aplikasi tidak perlu menyaring apa pun lagi.
+
   Future<Either<String, ApprovalResponseModel>> getInbox() async {
     final dio = await DioService.getInstance();
     var logger = Logger();

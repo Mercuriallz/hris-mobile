@@ -1,7 +1,4 @@
-/// Ringkasan untuk beranda.
-///
-/// Nama kelasnya spesifik — `SummaryData`, bukan `Data` — supaya tidak
-/// bertabrakan dengan model fitur lain saat diimpor bersamaan.
+
 class SummaryResponseModel {
   int? statusCode;
   String? message;
@@ -23,7 +20,6 @@ class SummaryResponseModel {
 }
 
 class SummaryData {
-  /// Bulan yang dirangkum, YYYY-MM.
   String? month;
 
   SummaryAttendance? attendance;
@@ -100,7 +96,6 @@ class SummaryAttendance {
         'leaveDays': leaveDays,
       };
 
-  /// true kalau bulan ini belum ada apa-apa yang perlu ditampilkan.
   bool get isEmpty => (scheduledDays ?? 0) == 0;
 }
 
@@ -108,7 +103,6 @@ class SummaryPending {
   int? total;
   List<PendingByType>? byType;
 
-  /// Umur pengajuan tertua, dalam hari.
   int? oldestDays;
 
   SummaryPending({this.total, this.byType, this.oldestDays});

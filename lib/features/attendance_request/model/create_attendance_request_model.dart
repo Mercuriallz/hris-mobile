@@ -30,16 +30,13 @@ class CreateAttendanceRequestModel {
   final String employeeShiftId;
   final String type;
 
-  /// Wajib untuk semua jenis KECUALI lupa clock out — di kasus itu catatan
-  /// masuknya sudah ada, dan mengirim jam masuk lagi akan ditolak backend.
+  
   final String? proposedClockInAt;
 
-  /// Wajib untuk lupa clock out. Opsional untuk yang lain.
   final String? proposedClockOutAt;
 
   final String reason;
 
-  /// Id berkas hasil unggah ke POST /me/files?category=attendance_selfie
   final String selfieFileId;
 
   final String? photoTakenAt;
@@ -66,9 +63,6 @@ class CreateAttendanceRequestModel {
       "selfieFileId": selfieFileId,
     };
 
-    // Field opsional hanya disertakan kalau ada isinya. Mengirim null ke
-    // @IsOptional() @IsDateString() tetap ditolak — yang diterima adalah
-    // field yang tidak ada sama sekali.
     if (proposedClockInAt != null) {
       data["proposedClockInAt"] = proposedClockInAt;
     }

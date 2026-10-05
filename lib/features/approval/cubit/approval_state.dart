@@ -29,11 +29,7 @@ class ApprovalError extends ApprovalState {
   List<Object> get props => [message];
 }
 
-/// Sedang mengirim keputusan untuk satu pengajuan.
-///
-/// Membawa idnya supaya pemuatan cuma muncul di kartu yang diputuskan, bukan
-/// di seluruh daftar — penyetuju sering memutuskan beberapa pengajuan
-/// berturut-turut.
+
 class ApprovalDeciding extends ApprovalState {
   final String approvalId;
 

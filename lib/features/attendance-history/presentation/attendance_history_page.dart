@@ -88,10 +88,7 @@ class _AttendanceHistoryPageState extends State<AttendanceHistoryPage> {
 
           return Column(
             children: [
-              // Penggeser bulan dan rangkuman selalu terlihat, tidak ikut
-              // menggulir. Angka rangkumannya yang paling sering dicari —
-              // menyuruh orang menggulir ke atas untuk melihatnya berarti
-              // membuat yang paling penting jadi paling sulit dijangkau.
+              
               _MonthSwitcher(
                 label: _monthFormat.format(loaded.month),
                 onPrevious: cubit.previousMonth,
@@ -147,9 +144,7 @@ class _MonthSwitcher extends StatelessWidget {
           Text(label, style: Theme.of(context).textTheme.titleMedium),
           IconButton(
             icon: const Icon(Icons.chevron_right),
-            // null berarti tombolnya mati sendiri. Riwayat masa depan tidak
-            // ada isinya, dan tombol yang selalu bisa ditekan membuat orang
-            // menggeser terus tanpa menemukan apa pun.
+          
             onPressed: onNext,
           ),
         ],
@@ -179,9 +174,7 @@ class _SummaryBar extends StatelessWidget {
             label: 'Terlambat',
             value: '${summary.lateDays}',
             color: Colors.orange.shade800,
-            // Total menitnya penting justru karena jumlah harinya sendiri
-            // tidak cukup: terlambat 3 hari masing-masing 2 menit berbeda
-            // jauh dari terlambat 3 hari masing-masing sejam.
+            
             caption: summary.totalLateMinutes > 0
                 ? '${summary.totalLateMinutes} mnt'
                 : null,
@@ -293,11 +286,6 @@ class _DayTile extends StatelessWidget {
     return _timeFormat.format(DateTime.parse(iso).toLocal());
   }
 
-  /// Baris mana yang bisa diajukan koreksinya.
-  ///
-  /// Hanya yang absensinya memang bermasalah, dan hanya dalam 30 hari
-  /// terakhir — backend menolak yang lebih lama, dan tombol yang selalu
-  /// ditolak lebih buruk daripada tombol yang tidak ada.
   bool get _canRequestCorrection {
     if (row.status != 'absent' && row.status != 'incomplete') return false;
     if (row.workDate == null) return false;
@@ -309,15 +297,6 @@ class _DayTile extends StatelessWidget {
     return age <= 30;
   }
 
-  /// Baris mana yang bisa ditukar shiftnya.
-  ///
-  /// Hanya yang shiftnya BELUM dimulai. Riwayat menampilkan masa lalu dan
-  /// masa depan di bulan yang sama — dan tukar shift cuma masuk akal untuk
-  /// yang belum terjadi.
-  ///
-  /// Status 'scheduled' berarti shiftnya belum berakhir, tapi itu belum
-  /// cukup: shift hari ini yang sudah dimulai juga 'scheduled'. Yang dipakai
-  /// jam mulainya, bukan statusnya.
   bool get _canSwap {
     if (row.scheduledStart == null) return false;
 
@@ -342,9 +321,7 @@ class _DayTile extends StatelessWidget {
       ),
     );
 
-    // Riwayat dimuat ulang meski jadwalnya belum berubah — pengajuan masih
-    // menunggu rekan dan atasan. Yang dimuat ulang bukan hasilnya, melainkan
-    // kepastian bahwa tadi berhasil terkirim.
+
     if (submitted == true && context.mounted) {
       context.read<AttendanceHistoryCubit>().fetchHistory();
     }
@@ -358,9 +335,7 @@ class _DayTile extends StatelessWidget {
       ),
     );
 
-    // Riwayat dimuat ulang hanya kalau pengajuannya benar-benar terkirim.
-    // Statusnya belum berubah — pengajuan masih menunggu persetujuan — tapi
-    // memuat ulang membuat orang tidak menebak apakah tadi berhasil.
+  
     if (submitted == true && context.mounted) {
       context.read<AttendanceHistoryCubit>().fetchHistory();
     }
@@ -375,8 +350,7 @@ class _DayTile extends StatelessWidget {
           icon: Icons.check_circle_outline,
         );
 
-      // Terlambat tetap hadir, warnanya saja yang beda. Ikon silang untuk
-      // orang yang datang dan bekerja itu penghakiman, bukan informasi.
+    
       case 'late':
         return (
           label: 'Hadir, terlambat',
@@ -474,11 +448,7 @@ class _DayTile extends StatelessWidget {
                     ),
                   ],
 
-                  // Tombol muncul hanya di baris yang memang bisa dikoreksi.
-                  //
-                  // Halaman yang menunjukkan masalah tanpa menyediakan jalan
-                  // keluarnya akan mengirim orang ke HR — dan itu justru yang
-                  // ingin dihindari dengan adanya aplikasi ini.
+                 
                   if (_canRequestCorrection) ...[
                     const SizedBox(height: 8),
                     TextButton.icon(
@@ -494,9 +464,7 @@ class _DayTile extends StatelessWidget {
                     ),
                   ],
 
-                  // Tukar shift untuk yang BELUM terjadi, koreksi untuk yang
-                  // sudah. Keduanya tidak pernah muncul bersamaan di satu
-                  // baris — syaratnya saling meniadakan.
+              
                   if (_canSwap) ...[
                     const SizedBox(height: 8),
                     TextButton.icon(
@@ -515,9 +483,7 @@ class _DayTile extends StatelessWidget {
               ),
             ),
 
-            // Jam masuk dan keluar ditampilkan meski kosong, bukan
-            // disembunyikan. Kolom yang hilang membuat baris-baris jadi tidak
-            // sejajar, dan mata harus mencari ulang di setiap baris.
+        
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [

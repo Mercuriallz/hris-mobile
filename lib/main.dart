@@ -27,9 +27,6 @@ const appEnv = String.fromEnvironment('ENV', defaultValue: 'development');
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Kartu shift menampilkan "Senin, 3 Maret". Tanpa ini, DateFormat dengan
-  // locale id_ID melempar saat pertama dipakai — bukan saat dibuat, jadi
-  // gagalnya baru terlihat setelah daftar shift muncul.
   await initializeDateFormatting('id_ID', null);
 
   final envFile =
@@ -37,9 +34,7 @@ void main() async {
 
   await dotenv.load(fileName: envFile);
 
-  // Token yang ditolak server berarti sesinya sudah tidak sah, apa pun
-  // penyebabnya. Diarahkan ke login dari satu tempat, bukan ditangani di
-  // setiap cubit.
+
   DioService.onUnauthorized = () => router.go('/login');
 
   runApp(

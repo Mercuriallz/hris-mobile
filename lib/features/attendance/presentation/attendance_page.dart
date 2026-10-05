@@ -22,15 +22,6 @@ import '../cubit/attendance_cubit.dart';
 import '../cubit/attendance_state.dart';
 import '../model/shift_card_model.dart';
 
-/// Layar absensi.
-///
-/// Ini satu-satunya layar yang dibuka orang setiap hari, dua kali sehari, dan
-/// biasanya sambil berjalan masuk kantor. Karena itu bentuknya bukan daftar
-/// seragam: satu kartu besar untuk shift yang berlaku SEKARANG, dan sisanya
-/// jadi baris kecil di bawah.
-///
-/// Daftar seragam memaksa orang memindai untuk menemukan mana yang relevan —
-/// padahal jam 8 pagi dia cuma punya satu pertanyaan.
 class AttendancePage extends StatefulWidget {
   const AttendancePage({super.key});
 
@@ -43,19 +34,10 @@ class _AttendancePageState extends State<AttendancePage> {
   DateTime _now = DateTime.now();
   String _name = '';
 
-  /// Status wajah, diambil sekali saat layar dibuka.
-  ///
-  /// Disimpan di layar, bukan di state cubit. Alasannya: ini cuma menentukan
-  /// apakah kamera perlu dibuka, dan menaruhnya di state absensi berarti
-  /// setiap pemuatan ulang kartu ikut memuat status wajah — padahal
-  /// kebijakannya tidak berubah setiap menit.
+
   FaceStatusData? _faceStatus;
 
-  /// Ringkasan bulan ini, pengajuan menunggu, dan jadwal ke depan.
-  ///
-  /// Dimuat terpisah dan tidak menahan kartu shift. Kartu shift adalah alasan
-  /// orang membuka layar ini — ringkasan yang gagal dimuat tidak boleh
-  /// menghalangi tombol clock in.
+  
   SummaryData? _summary;
 
   @override
@@ -66,11 +48,7 @@ class _AttendancePageState extends State<AttendancePage> {
     context.read<AttendanceCubit>().fetchShifts();
     _loadName();
 
-    // Jam berdetak setiap sepuluh detik.
-    //
-    // Bukan hiasan: orang yang absen mepet jam masuk perlu tahu jam yang
-    // dipakai aplikasi, bukan jam di kepalanya. Dan jam yang bergerak
-    // meyakinkan bahwa layarnya hidup — bukan tangkapan layar yang membeku.
+  
     _clock = Timer.periodic(const Duration(seconds: 10), (_) {
       if (mounted) setState(() => _now = DateTime.now());
     });
@@ -81,11 +59,7 @@ class _AttendancePageState extends State<AttendancePage> {
     if (mounted) setState(() => _name = name ?? '');
   }
 
-  /// Status wajah tidak menahan tampilnya layar.
-  ///
-  /// Gagal berarti _faceStatus tetap null, dan clock in berjalan tanpa
-  /// verifikasi — backend yang memutuskan apakah itu masalah. Layar absensi
-  /// tidak boleh gagal dibuka karena satu permintaan tambahan.
+  
   Future<void> _loadSummary() async {
     final result = await SummaryRepository().getSummary();
 
@@ -108,21 +82,14 @@ class _AttendancePageState extends State<AttendancePage> {
     );
   }
 
-  /// Mengambil foto untuk verifikasi wajah, kalau memang dibutuhkan.
-  ///
-  /// Mengembalikan null berarti lanjut tanpa verifikasi — dan itu sah kalau
-  /// verifikasinya mati atau wajahnya belum terdaftar. Mengembalikan string
-  /// kosong berarti orangnya membatalkan, dan absensinya tidak diteruskan.
+
   Future<String?> _photoForVerification() async {
     final status = _faceStatus;
 
-    // Verifikasi mati: kamera tidak dibuka sama sekali. Membuka kamera untuk
-    // foto yang tidak akan diperiksa berarti menambah satu langkah tanpa
-    // menambah apa pun.
+
     if (status == null || !status.needsVerification) return null;
 
-    // Belum terdaftar. Kalau wajib, backend akan menolak — jadi lebih baik
-    // diarahkan mendaftar sekarang daripada ditolak setelah mengambil foto.
+  
     if (status.enrolled != true) {
       if (status.isRequired == true) {
         final enrolled = await Navigator.push<bool>(
@@ -165,12 +132,7 @@ class _AttendancePageState extends State<AttendancePage> {
     return 'Selamat malam';
   }
 
-  /// Kartu yang paling relevan sekarang.
-  ///
-  /// Yang bisa diketuk selalu menang atas yang cuma bisa dilihat. Orang yang
-  /// punya shift malam kemarin yang belum di-clock-out dan shift pagi hari ini
-  /// perlu melihat yang belum selesai lebih dulu — kalau tidak, dia clock in
-  /// shift baru dan shift lamanya menggantung selamanya.
+
   ShiftCard? _pickPrimary(List<ShiftCard> cards) {
     if (cards.isEmpty) return null;
 
@@ -178,7 +140,6 @@ class _AttendancePageState extends State<AttendancePage> {
       (c) => (c.canClockOut ?? false) || (c.canClockIn ?? false),
     );
     if (actionable.isNotEmpty) {
-      // Clock out lebih dulu daripada clock in.
       final pending = actionable.where((c) => c.canClockOut ?? false);
       return pending.isNotEmpty ? pending.first : actionable.first;
     }
@@ -214,9 +175,7 @@ class _AttendancePageState extends State<AttendancePage> {
 
           return RefreshIndicator(
             onRefresh: () async {
-              // Tarik ke bawah menyegarkan keduanya. Menyegarkan kartu shift
-              // saja berarti ringkasan di bawahnya tetap menampilkan angka
-              // kemarin — dan tidak ada yang memberi tahu bahwa itu lama.
+            
               context.read<AttendanceCubit>().fetchShifts(silent: true);
               await _loadSummary();
             },
@@ -266,12 +225,7 @@ class _AttendancePageState extends State<AttendancePage> {
                   const SizedBox(height: 8),
                 ],
 
-                // Ringkasan ditaruh SETELAH kartu shift, bukan sebelum.
-                //
-                // Kartu shift adalah alasan orang membuka layar ini — tombol
-                // clock in harus terlihat tanpa menggulir. Ringkasan yang
-                // dipasang di atasnya akan mendorong tombolnya keluar layar
-                // di HP kecil.
+         
                 if (_summary != null) ...[
                   _PendingBanner(pending: _summary!.pendingRequests),
                   _MonthSummary(attendance: _summary!.attendance),
@@ -281,12 +235,6 @@ class _AttendancePageState extends State<AttendancePage> {
                   ),
                 ],
 
-                // Menu, bukan ikon di header.
-                //
-                // Ikon kecil di pojok mengandalkan orang menemukannya sendiri.
-                // Baris bernama dengan keterangan di bawahnya bisa dibaca
-                // sekali lalu diingat — dan Pengajuan Koreksi yang sebelumnya
-                // tersembunyi di dalam Riwayat sekarang punya jalannya sendiri.
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 4, 16, 10),
                   child: Text('LAINNYA', style: AppText.label),
@@ -360,15 +308,13 @@ class _AttendancePageState extends State<AttendancePage> {
         SnackBar(
           content: Text(message),
           backgroundColor: isError ? AppColor.danger : AppColor.success,
-          // Pesan penolakan sering panjang — "Anda berada 340 meter dari Head
-          // Office, di luar radius 150 meter" perlu waktu dibaca.
+         
           duration: Duration(seconds: isError ? 6 : 3),
         ),
       );
   }
 }
 
-/// Bidang biru di atas, dengan jam yang berdetak.
 class _Header extends StatelessWidget {
   final String greeting;
   final String name;
@@ -439,21 +385,12 @@ class _Header extends StatelessWidget {
   }
 }
 
-/// Kartu utama: shift yang berlaku sekarang, dengan tombol besar.
 class _PrimaryShiftCard extends StatelessWidget {
   final ShiftCard card;
   final DateTime now;
   final bool isProcessing;
 
-  /// Mengambil foto untuk verifikasi wajah, kalau memang dibutuhkan.
-  ///
-  /// null berarti verifikasi tidak dibutuhkan dan absensi diteruskan apa
-  /// adanya. String kosong berarti dibatalkan, dan absensinya tidak
-  /// diteruskan.
-  ///
-  /// Diteruskan sebagai fungsi, bukan dikerjakan di dalam kartu: kamera dan
-  /// navigasi butuh state layar, dan kartu ini sengaja tanpa state supaya
-  /// bisa dibangun ulang murah setiap jam berdetak.
+ 
   final Future<String?> Function() onNeedPhoto;
 
   const _PrimaryShiftCard({
@@ -624,9 +561,7 @@ class _PrimaryShiftCard extends StatelessWidget {
                       final id = card.employeeShiftId!;
 
                       final photoPath = await onNeedPhoto();
-                      // String kosong berarti dibatalkan atau kameranya
-                      // gagal. null berarti verifikasi memang tidak
-                      // dibutuhkan.
+                    
                       if (photoPath == '') return;
                       if (!context.mounted) return;
 
@@ -666,8 +601,7 @@ class _PrimaryShiftCard extends StatelessWidget {
             ),
           ] else ...[
             const SizedBox(height: 14),
-            // Kalau tombolnya tidak ada, alasannya harus disebut. Tombol yang
-            // hilang tanpa penjelasan terbaca sebagai kerusakan.
+          
             Text(switch (card.state) {
               'upcoming' =>
                 'Clock in bisa mulai ${_time(card.clockInOpensAt)}.',
@@ -887,9 +821,7 @@ class _MenuRow extends StatelessWidget {
                 children: [
                   Text(title, style: AppText.bodyStrong),
                   const SizedBox(height: 1),
-                  // Keterangan di bawah judulnya ada supaya orang tahu apa
-                  // yang akan dia temukan sebelum mengetuk. Menu yang cuma
-                  // berisi nama memaksa orang mencoba satu per satu.
+                  
                   Text(subtitle, style: AppText.caption),
                 ],
               ),
@@ -907,11 +839,7 @@ class _MenuRow extends StatelessWidget {
   }
 }
 
-/// Spanduk pengajuan yang masih menunggu.
-///
-/// Muncul paling atas di antara ringkasan, dan hanya kalau ada. Ini
-/// satu-satunya bagian yang bisa menuntut tindakan hari ini — sisanya cuma
-/// keadaan.
+
 class _PendingBanner extends StatelessWidget {
   final SummaryPending? pending;
 
@@ -925,10 +853,7 @@ class _PendingBanner extends StatelessWidget {
     final oldest = pending?.oldestDays ?? 0;
     final types = pending?.byType ?? [];
 
-    // Yang menggantung lebih dari tiga hari diberi warna berbeda. Lima
-    // pengajuan yang masuk pagi ini bukan masalah; satu yang menggantung
-    // sembilan hari adalah masalah — dan keduanya terlihat sama kalau yang
-    // ditampilkan cuma angka totalnya.
+  
     final stale = oldest > 3;
 
     return Padding(
@@ -993,9 +918,7 @@ class _MonthSummary extends StatelessWidget {
   Widget build(BuildContext context) {
     final data = attendance;
 
-    // Bulan tanpa shift terjadwal tidak ditampilkan sama sekali. Deretan nol
-    // tidak memberi tahu apa pun, dan yang membacanya akan mengira datanya
-    // gagal dimuat.
+
     if (data == null || data.isEmpty) return const SizedBox.shrink();
 
     final late = data.lateDays ?? 0;
@@ -1052,8 +975,7 @@ class _MonthSummary extends StatelessWidget {
               ],
             ),
 
-            // Total menit terlambat disebut hanya kalau ada. Angka nol di
-            // situ cuma menambah baris yang tidak berarti.
+            
             if (lateMinutes > 0) ...[
               const SizedBox(height: 10),
               Text(
@@ -1075,7 +997,6 @@ class _MonthSummary extends StatelessWidget {
   }
 }
 
-/// Pemisah tipis antar statistik, senada dengan _Divider di kartu shift.
 Widget _statDivider() => Padding(
   padding: const EdgeInsets.symmetric(horizontal: 4),
   child: _Divider(),
@@ -1110,7 +1031,6 @@ class _Stat2 extends StatelessWidget {
   }
 }
 
-/// Jadwal beberapa hari ke depan.
 class _UpcomingShifts extends StatelessWidget {
   final List<UpcomingShift> shifts;
   final DateTime now;
@@ -1120,8 +1040,7 @@ class _UpcomingShifts extends StatelessWidget {
   static final _dayFormat = DateFormat('EEE', 'id_ID');
   static final _dateFormat = DateFormat('d MMM', 'id_ID');
 
-  /// "Hari ini" dan "Besok" dibaca lebih cepat daripada "Rab, 12 Sep" —
-  /// dan itu yang biasanya ingin diketahui orang dari kartu paling kiri.
+
   String _dayLabel(DateTime date) {
     final diff = DateTime(
       date.year,
@@ -1146,11 +1065,6 @@ class _UpcomingShifts extends StatelessWidget {
           child: Text('JADWAL BERIKUTNYA', style: AppText.label),
         ),
 
-        // Menggulir menyamping, bukan daftar menurun.
-        //
-        // Tujuh baris menurun akan mendorong menu di bawahnya keluar layar.
-        // Menyamping menjaga tingginya tetap, dan jadwal ke depan memang
-        // dibaca sekilas — bukan diperiksa satu per satu.
         SizedBox(
           height: 100,
           child: ListView.separated(
@@ -1162,8 +1076,7 @@ class _UpcomingShifts extends StatelessWidget {
               final shift = shifts[index];
               final date = DateTime.parse(shift.workDate ?? '');
 
-              // Kartu paling kiri selalu yang paling dekat — ditonjolkan
-              // supaya mata langsung tahu ke mana harus melihat duluan.
+       
               final isNext = index == 0;
               final accent = isNext ? AppColor.primary : AppColor.textSecondary;
 

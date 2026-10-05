@@ -32,8 +32,7 @@ class ShiftCard {
   String? shiftName;
   String? shiftCode;
 
-  /// Tanggal jangkar shift, bukan tanggal kalender kejadiannya. Shift malam
-  /// yang melewati tengah malam tetap memakai tanggal hari mulainya.
+
   String? workDate;
 
   String? startAt;
@@ -41,17 +40,11 @@ class ShiftCard {
   bool? crossesMidnight;
   Office? office;
 
-  /// Kapan clock in paling awal diperbolehkan.
   String? clockInOpensAt;
 
-  /// true berarti radius kantor tidak diperiksa untuk karyawan ini.
-  ///
-  /// Karyawan lapangan yang tidak tahu dirinya boleh absen di mana saja akan
-  /// ragu menekan clock in dari lokasi pelanggan — dan keraguan itu berakhir
-  /// sebagai telepon ke HR.
+  
   bool? isFlexibleLocation;
 
-  /// 'upcoming', 'open', 'done', 'missed', atau 'incomplete'.
   String? state;
 
   bool? canClockIn;
@@ -136,8 +129,7 @@ class Office {
   Office.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     name = json['name'];
-    // Postgres numeric datang sebagai String lewat JSON, jadi tidak bisa
-    // langsung di-cast ke double.
+ 
     latitude = json['latitude'] == null
         ? null
         : double.tryParse(json['latitude'].toString());
@@ -163,8 +155,7 @@ class Attendance {
   String? clockOutAt;
   int? lateMinutes;
 
-  /// true kalau ada yang perlu ditinjau HR — GPS palsu terdeteksi, atau
-  /// absensi tersinkron dari antrean offline.
+
   bool? needsReview;
 
   Attendance({

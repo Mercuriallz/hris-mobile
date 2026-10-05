@@ -15,7 +15,6 @@ class AttendanceHistoryLoaded extends AttendanceHistoryState {
   final List<AttendanceHistoryData> rows;
   final HistorySummary summary;
 
-  /// Bulan yang sedang ditampilkan, dipakai judul dan tombol geser bulan.
   final DateTime month;
 
   AttendanceHistoryLoaded(this.rows, this.summary, this.month);

@@ -8,23 +8,14 @@ import 'package:intl/intl.dart';
 
 import '../../../constant/theme/app_color.dart';
 import '../../../constant/theme/app_text.dart';
-// Diberi prefiks karena attendance_history_model dan attendance_request_model
-// sama-sama punya kelas bernama Data — json_to_dart selalu menamai kelas
-// bersarangnya begitu. Tanpa prefiks, Data di berkas ini menunjuk ke model
-// yang salah, dan errornya muncul sebagai "getter tidak ditemukan" alih-alih
-// sebagai tabrakan nama.
+
 import '../cubit/attendance_request_cubit.dart';
 import '../cubit/attendance_request_state.dart';
 import '../model/create_attendance_request_model.dart';
 
-/// Formulir koreksi absensi untuk satu shift tertentu.
-///
-/// Diluncurkan dari kartu riwayat, bukan dari menu kosong. Karyawan sudah
-/// menunjuk hari yang bermasalah — menyuruhnya memilih ulang shift dari
-/// dropdown berarti melupakan yang baru saja dia katakan.
+
 class AttendanceRequestFormPage extends StatefulWidget {
-  /// Baris riwayat yang bermasalah. Dari sini formulir tahu shift mana yang
-  /// dimaksud, jam jadwalnya, dan apakah catatan masuknya sudah ada.
+  
   final AttendanceHistoryData row;
 
   const AttendanceRequestFormPage({super.key, required this.row});
@@ -46,12 +37,6 @@ class _AttendanceRequestFormPageState extends State<AttendanceRequestFormPage> {
   static final _dayFormat = DateFormat('EEEE, d MMMM yyyy', 'id_ID');
   static final _timeFormat = DateFormat('HH:mm');
 
-  /// Jenis yang masuk akal untuk baris ini.
-  ///
-  /// Kalau catatan masuknya sudah ada, satu-satunya yang mungkin adalah lupa
-  /// clock out — backend menolak jam masuk kedua dengan ConflictException.
-  /// Menampilkan pilihan yang pasti ditolak berarti membiarkan orang mengisi
-  /// formulir lengkap untuk sesuatu yang tidak akan pernah diterima.
   List<String> get _allowedTypes {
     final hasClockIn = widget.row.clockInAt != null;
 
@@ -74,12 +59,6 @@ class _AttendanceRequestFormPageState extends State<AttendanceRequestFormPage> {
     _prefillTimes();
   }
 
-  /// Jam diisi dari JADWAL shift, bukan dibiarkan kosong.
-  ///
-  /// Jam jadwal adalah jawaban yang paling mungkin benar, dan pasti lolos
-  /// pemeriksaan penyimpangan 12 jam di backend. Formulir kosong memaksa orang
-  /// mengetik tanggal dan jam dari nol lewat pemilih waktu — dan itu tempat
-  /// paling gampang salah pilih tanggal.
   void _prefillTimes() {
     final start = widget.row.scheduledStart;
     final end = widget.row.scheduledEnd;
@@ -97,9 +76,6 @@ class _AttendanceRequestFormPageState extends State<AttendanceRequestFormPage> {
   Future<void> _pickSelfie() async {
     final picker = ImagePicker();
 
-    // Kamera, bukan galeri. Swafoto yang bisa dipilih dari galeri kehilangan
-    // seluruh gunanya sebagai bukti — dan itu satu-satunya alasan swafotonya
-    // diminta.
     final file = await picker.pickImage(
       source: ImageSource.camera,
       preferredCameraDevice: CameraDevice.front,
@@ -127,10 +103,6 @@ class _AttendanceRequestFormPageState extends State<AttendanceRequestFormPage> {
 
     if (time == null) return;
 
-    // Tanggalnya diambil dari jam jadwal yang sudah terisi, bukan dari hari
-    // ini. Yang dipilih orang cuma jamnya — dan mengganti tanggalnya secara
-    // diam-diam adalah cara tercepat menghasilkan pengajuan yang ditolak
-    // karena menyimpang lebih dari 12 jam.
     final result = DateTime(
       base.year,
       base.month,
@@ -206,10 +178,7 @@ class _AttendanceRequestFormPageState extends State<AttendanceRequestFormPage> {
                   Text('JENIS PENGAJUAN', style: AppText.label),
                   const SizedBox(height: 10),
 
-                  // Kartu yang bisa diketuk seluruh bidangnya, bukan radio
-                  // kecil di ujung kiri. Target sentuh selebar layar jauh lebih
-                  // mudah dikenai sambil berjalan — dan formulir ini memang
-                  // sering diisi di jalan.
+                
                   ..._allowedTypes.map(
                     (type) => Padding(
                       padding: const EdgeInsets.only(bottom: 8),
@@ -321,9 +290,7 @@ class _AttendanceRequestFormPageState extends State<AttendanceRequestFormPage> {
                 ],
               ),
 
-              // Penutup layar selama mengirim. Formulir yang masih bisa
-              // disentuh saat unggahan berjalan mengundang ketukan kedua, dan
-              // ketukan kedua menghasilkan pengajuan kembar.
+              
               if (busy)
                 const Positioned.fill(
                   child: ColoredBox(color: Color(0x22000000)),
@@ -477,11 +444,6 @@ class _SelfieField extends StatelessWidget {
   }
 }
 
-/// Kartu pilihan jenis pengajuan.
-///
-/// Menggantikan RadioListTile: seluruh bidangnya bisa diketuk, dan yang
-/// terpilih ditandai warna latar plus garis tepi — bukan cuma titik kecil di
-/// ujung kiri yang mudah terlewat.
 class _TypeCard extends StatelessWidget {
   final String label;
   final String description;

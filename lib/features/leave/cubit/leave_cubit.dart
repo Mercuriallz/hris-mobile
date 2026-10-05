@@ -7,10 +7,7 @@ import 'leave_state.dart';
 class LeaveCubit extends Cubit<LeaveState> {
   LeaveCubit() : super(LeaveInitial());
 
-  /// Tiga permintaan sekaligus, bukan berurutan.
-  ///
-  /// Saldo, jenis cuti, dan riwayat tidak saling bergantung — menunggunya satu
-  /// per satu berarti layar kosong tiga kali lebih lama di jaringan seluler.
+
   void fetchAll({bool silent = false}) async {
     if (!silent) emit(LeaveLoading());
 
@@ -32,8 +29,7 @@ class LeaveCubit extends Cubit<LeaveState> {
       (r) => balance = r.data,
     );
 
-    // Saldo yang gagal berarti seluruh layar tidak berguna — angka sisa jatah
-    // adalah alasan utama orang membuka halaman ini.
+ 
     if (balanceError != null) {
       emit(LeaveError(balanceError!));
       return;

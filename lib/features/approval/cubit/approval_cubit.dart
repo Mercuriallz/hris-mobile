@@ -9,12 +9,7 @@ import 'approval_state.dart';
 class ApprovalCubit extends Cubit<ApprovalState> {
   ApprovalCubit() : super(ApprovalInitial());
 
-  /// Jumlah yang menunggu, dipakai bottom bar untuk memutuskan apakah tab
-  /// Persetujuan perlu ditampilkan dan berapa angka di lencananya.
-  ///
-  /// Disimpan di cubit, bukan dihitung ulang dari state, karena state bisa
-  /// sedang berupa ApprovalDeciding saat bottom bar membangun ulang — dan
-  /// angka yang hilang sesaat membuat tabnya berkedip.
+
   int pendingCount = 0;
 
   void fetchInbox({bool silent = false}) async {
@@ -32,11 +27,6 @@ class ApprovalCubit extends Cubit<ApprovalState> {
     );
   }
 
-  /// Menyetujui atau menolak.
-  ///
-  /// [note] wajib untuk penolakan — backend menolaknya tanpa itu, dengan
-  /// alasan yang tepat: orang berhak tahu kenapa pengajuannya ditolak.
-  /// Diperiksa di sini juga supaya penyetuju tidak mengetuk lalu ditolak.
   void decide({
     required String approvalId,
     required bool approve,
@@ -69,12 +59,6 @@ class ApprovalCubit extends Cubit<ApprovalState> {
           approve ? 'Pengajuan disetujui' : 'Pengajuan ditolak',
         ));
 
-        // Kotak masuk dimuat ulang dari server, bukan dihapus di aplikasi.
-        //
-        // Menyetujui lapis pertama tidak selalu mengeluarkan pengajuan dari
-        // kotak masuk — kalau orang yang sama juga penyetuju HR, pengajuannya
-        // langsung muncul lagi sebagai gilirannya yang berikutnya. Menebaknya
-        // di sisi aplikasi berarti kartunya hilang lalu muncul lagi.
         fetchInbox(silent: true);
         return;
       }

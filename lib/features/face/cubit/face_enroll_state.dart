@@ -24,10 +24,7 @@ class FaceEnrollStatusLoaded extends FaceEnrollState {
       ];
 }
 
-/// Sedang memproses foto, dengan keterangan langkahnya.
-///
-/// Menghitung embedding memakan ratusan milidetik dan memuat model bisa lebih
-/// lama lagi. Tanpa penanda, orang mengira aplikasinya menggantung.
+
 class FaceEnrollProcessing extends FaceEnrollState {
   final String step;
 
@@ -46,10 +43,7 @@ class FaceEnrollSuccess extends FaceEnrollState {
   List<Object> get props => [message];
 }
 
-/// Gagal karena fotonya, bukan karena jaringan.
-///
-/// Dipisah karena tindak lanjutnya berbeda: yang ini perlu foto diulang,
-/// sementara kegagalan jaringan perlu dicoba lagi apa adanya.
+
 class FaceEnrollPhotoError extends FaceEnrollState {
   final String message;
 

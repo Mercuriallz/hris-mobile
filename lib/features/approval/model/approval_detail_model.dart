@@ -1,11 +1,4 @@
-/// Detail pengajuan dalam bentuk siap tampil.
-///
-/// Backend yang menyusun judul, daftar keterangan, catatan, dan tautan
-/// buktinya. Aplikasi tidak tahu apa pun tentang absensi, cuti, maupun lembur
-/// — dia cuma merender apa yang dikirim.
-///
-/// Akibatnya begitu cuti dan lembur masuk ke aplikasi, halaman detailnya sudah
-/// jalan tanpa satu baris pun berubah di sini.
+
 class ApprovalDetailResponseModel {
   int? statusCode;
   String? message;
@@ -176,8 +169,6 @@ class ApprovalDetail {
   List<DetailField>? fields;
   String? note;
 
-  /// Tautan bertanda tangan, berumur sepuluh menit. Diambil ulang setiap kali
-  /// halaman dibuka — menyimpannya tidak ada gunanya karena akan kedaluwarsa.
   String? photoUrl;
 
   String? photoLabel;

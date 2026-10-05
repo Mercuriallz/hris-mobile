@@ -31,7 +31,6 @@ class AttendanceRequestData {
   String? id;
   String? employeeShiftId;
 
-  /// 'forgot_clock_in', 'forgot_clock_out', 'wfh', atau 'business_trip'.
   String? type;
 
   String? proposedClockInAt;
@@ -43,14 +42,10 @@ class AttendanceRequestData {
   double? longitude;
   String? createdAt;
 
-  /// 'pending', 'approved', 'rejected', atau 'cancelled'. Diambil dari
-  /// ApprovalRequest, bukan disimpan di pengajuan ini.
+
   String? approvalStatus;
 
-  /// Catatan dari langkah persetujuan terakhir yang diputuskan.
-  ///
-  /// Untuk penolakan inilah alasannya. "Ditolak" tanpa alasan mengirim orang
-  /// bertanya ke HR — dan itu persis yang ingin dihindari.
+
   String? decisionNote;
 
   String? decidedByName;

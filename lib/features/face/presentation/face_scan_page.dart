@@ -8,27 +8,14 @@ import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import '../../../constant/theme/app_color.dart';
 import '../../../constant/theme/app_text.dart';
 
-/// Berapa bingkai berurutan yang harus bagus sebelum foto diambil.
-///
-/// Delapan bingkai sekitar setengah detik. Terlalu sedikit dan fotonya
-/// terambil saat orangnya masih bergerak; terlalu banyak dan dia merasa
-/// aplikasinya tidak merespons.
+
 const int _stableFramesRequired = 8;
 
-/// Proporsi tinggi bingkai yang harus ditempati wajah.
-///
-/// Di bawah batas bawah, wajahnya terlalu kecil dan embedding-nya jadi
-/// buram. Di atas batas atas, sebagian wajah biasanya terpotong keluar
-/// bingkai — dan wajah terpotong lebih buruk daripada wajah kecil, karena
-/// bagian yang hilang justru yang dipakai membedakan.
+
 const double _minFaceRatio = 0.22;
 const double _maxFaceRatio = 0.70;
 
-/// Apa yang sedang dilihat kamera.
-///
-/// Setiap keadaan punya arahan yang berbeda. "Wajah tidak terdeteksi" dan
-/// "wajah terlalu jauh" menuntut tindakan yang berbeda, dan menggabungkannya
-/// jadi satu pesan berarti orangnya menebak mana yang salah.
+
 enum ScanGuidance {
   starting,
   searching,
@@ -41,18 +28,8 @@ enum ScanGuidance {
   capturing,
 }
 
-/// Memindai wajah dengan pratinjau kamera langsung.
-///
-/// Mengembalikan jalur berkas foto lewat Navigator.pop, atau null kalau
-/// dibatalkan.
-///
-/// Berbeda dari ImagePicker yang membuka kamera bawaan sistem: di sana orang
-/// harus menekan shutter lalu menyetujui pratinjau — tiga ketukan untuk
-/// sesuatu yang seharusnya nol. Dan yang lebih penting, arahan hanya bisa
-/// diberikan SETELAH fotonya ditolak. Di sini arahannya muncul sebelum
-/// fotonya diambil.
+
 class FaceScanPage extends StatefulWidget {
-  /// Ditampilkan di atas layar. Berbeda antara mendaftar dan absen.
   final String title;
   final String instruction;
 
@@ -74,12 +51,7 @@ class _FaceScanPageState extends State<FaceScanPage>
   ScanGuidance _guidance = ScanGuidance.starting;
   int _stableFrames = 0;
 
-  /// Mencegah bingkai menumpuk.
-  ///
-  /// Aliran kamera mengirim bingkai jauh lebih cepat daripada deteksi wajah
-  /// selesai. Tanpa penanda ini, bingkai menumpuk di memori sampai
-  /// aplikasinya mati — dan matinya bukan karena kode deteksinya salah,
-  /// melainkan karena tidak ada yang menahan alirannya.
+ 
   bool _busy = false;
 
   bool _captured = false;
@@ -94,9 +66,7 @@ class _FaceScanPageState extends State<FaceScanPage>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    // Kamera dilepas saat aplikasi ke latar belakang. Tanpa ini, kembali ke
-    // aplikasi menghasilkan pratinjau yang beku — dan orangnya akan menunggu
-    // arahan yang tidak akan pernah berubah.
+  
     if (state == AppLifecycleState.inactive) {
       _controller?.dispose();
       _controller = null;
@@ -116,14 +86,10 @@ class _FaceScanPageState extends State<FaceScanPage>
 
       final controller = CameraController(
         front,
-        // Sedang, bukan tinggi. Wajah diperkecil ke 112 piksel sebelum
-        // dihitung, jadi resolusi tinggi tidak menambah ketepatan — cuma
-        // menambah waktu pemrosesan tiap bingkai.
+   
         ResolutionPreset.medium,
         enableAudio: false,
-        // Format satu bidang, supaya bytes-nya bisa langsung diberikan ke ML
-        // Kit tanpa mengubah YUV ke NV21 sendiri. Konversi manual itu tempat
-        // kesalahan paling sering terjadi di alur ini.
+       
         imageFormatGroup: Platform.isAndroid
             ? ImageFormatGroup.nv21
             : ImageFormatGroup.bgra8888,
@@ -133,12 +99,7 @@ class _FaceScanPageState extends State<FaceScanPage>
 
       _detector = FaceDetector(
         options: FaceDetectorOptions(
-          // Cepat, bukan akurat — berbeda dari saat menghitung embedding.
-          //
-          // Di sini deteksinya cuma untuk mengarahkan posisi, dan itu perlu
-          // berjalan belasan kali per detik. Mode akurat memakan waktu yang
-          // membuat arahannya tersendat, dan arahan yang tersendat lebih
-          // buruk daripada arahan yang sedikit kurang tepat.
+     
           performanceMode: FaceDetectorMode.fast,
           enableClassification: true,
           enableLandmarks: false,
@@ -188,9 +149,7 @@ class _FaceScanPageState extends State<FaceScanPage>
           return;
         }
       } else {
-        // Hitungan direset begitu ada bingkai yang tidak bagus. Tanpa reset,
-        // delapan bingkai bagus yang terpisah-pisah oleh gerakan akan
-        // memicu pengambilan foto justru saat orangnya bergerak.
+  
         _stableFrames = 0;
       }
 
@@ -202,7 +161,6 @@ class _FaceScanPageState extends State<FaceScanPage>
     }
   }
 
-  /// Menilai bingkai dan menentukan arahannya.
   ScanGuidance _evaluate(List<Face> faces, CameraImage image) {
     if (faces.isEmpty) return ScanGuidance.searching;
     if (faces.length > 1) return ScanGuidance.multipleFaces;
@@ -214,8 +172,7 @@ class _FaceScanPageState extends State<FaceScanPage>
     if (ratio < _minFaceRatio) return ScanGuidance.tooFar;
     if (ratio > _maxFaceRatio) return ScanGuidance.tooClose;
 
-    // Wajah harus dekat tengah. Yang di pinggir sering terpotong sebagian
-    // saat difoto, dan potongan yang hilang itulah yang dipakai membedakan.
+ 
     final centerX = face.boundingBox.center.dx / image.width;
     final centerY = face.boundingBox.center.dy / frameHeight;
 
@@ -223,10 +180,6 @@ class _FaceScanPageState extends State<FaceScanPage>
       return ScanGuidance.offCenter;
     }
 
-    // Mata terpejam ditolak. Bukan untuk mendeteksi kehidupan — itu butuh
-    // urutan gerakan — tapi karena wajah dengan mata tertutup menghasilkan
-    // embedding yang berbeda cukup jauh dari wajah yang sama dengan mata
-    // terbuka.
     final leftOpen = face.leftEyeOpenProbability;
     final rightOpen = face.rightEyeOpenProbability;
 
@@ -248,9 +201,7 @@ class _FaceScanPageState extends State<FaceScanPage>
     final format = InputImageFormatValue.fromRawValue(image.format.raw as int);
     if (format == null) return null;
 
-    // Satu bidang saja, berkat imageFormatGroup di atas. Kalau formatnya
-    // YUV420 dengan tiga bidang, bagian ini butuh penggabungan manual — dan
-    // itu yang sengaja dihindari.
+  
     if (image.planes.isEmpty) return null;
 
     return InputImage.fromBytes(
@@ -423,9 +374,6 @@ class _FaceScanPageState extends State<FaceScanPage>
 
                 const Spacer(),
 
-                // Arahan di bawah, bukan di atas oval. Mata orang yang
-                // memindai wajahnya sendiri tertuju ke wajahnya di layar —
-                // teks di atas oval tertutup wajahnya sendiri.
                 Container(
                   margin: const EdgeInsets.all(20),
                   padding:

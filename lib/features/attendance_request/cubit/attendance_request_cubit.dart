@@ -56,9 +56,7 @@ class AttendanceRequestCubit extends Cubit<AttendanceRequestState> {
           latitude = location.latitude;
           longitude = location.longitude;
         } catch (_) {
-          // Lokasi gagal dibaca tidak menggagalkan pengajuan — dia cuma
-          // pelengkap. Menggagalkannya berarti orang yang GPS-nya mati tidak
-          // bisa mengajukan koreksi sama sekali.
+        
           debugPrint('Lokasi tidak disertakan: gagal dibaca');
         }
       }

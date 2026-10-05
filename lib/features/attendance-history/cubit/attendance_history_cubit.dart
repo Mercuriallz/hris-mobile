@@ -10,8 +10,7 @@ class AttendanceHistoryCubit extends Cubit<AttendanceHistoryState> {
 
   static final _dateFormat = DateFormat('yyyy-MM-dd');
 
-  /// Bulan yang sedang dilihat. Disimpan di cubit, bukan di layar, supaya
-  /// tombol geser bulan tidak perlu mengurus tanggalnya sendiri.
+
   DateTime _month = DateTime(DateTime.now().year, DateTime.now().month);
 
   void fetchHistory({DateTime? month}) async {
@@ -20,8 +19,7 @@ class AttendanceHistoryCubit extends Cubit<AttendanceHistoryState> {
     emit(AttendanceHistoryLoading());
 
     final from = _dateFormat.format(_month);
-    // Hari ke-0 bulan berikutnya adalah hari terakhir bulan ini — cara paling
-    // pendek yang benar untuk semua bulan, termasuk Februari kabisat.
+   
     final to = _dateFormat.format(DateTime(_month.year, _month.month + 1, 0));
 
     final result = await AttendanceHistoryRepository().getHistory(from, to);
@@ -29,9 +27,7 @@ class AttendanceHistoryCubit extends Cubit<AttendanceHistoryState> {
     result.fold(
       (l) => emit(AttendanceHistoryError(l)),
       (r) {
-        // Backend mengembalikan urutan naik. Riwayat lebih berguna dibaca dari
-        // yang terbaru — orang membukanya untuk memeriksa hari-hari terakhir,
-        // bukan awal bulan.
+      
         final rows = (r.data ?? []).reversed.toList();
 
         emit(AttendanceHistoryLoaded(
@@ -47,9 +43,6 @@ class AttendanceHistoryCubit extends Cubit<AttendanceHistoryState> {
         month: DateTime(_month.year, _month.month - 1),
       );
 
-  /// Bulan berikutnya dibatasi sampai bulan ini — riwayat masa depan tidak
-  /// ada isinya, dan tombol yang selalu bisa ditekan membuat orang menggeser
-  /// terus tanpa menemukan apa pun.
   void nextMonth() {
     if (!canGoNext) return;
     fetchHistory(month: DateTime(_month.year, _month.month + 1));

@@ -30,11 +30,6 @@ class AttendanceRequestError extends AttendanceRequestState {
   List<Object> get props => [message];
 }
 
-/// Sedang mengunggah foto atau mengirim pengajuan.
-///
-/// Membawa keterangan langkahnya karena unggahan foto bisa memakan belasan
-/// detik di jaringan seluler — tanpa penanda, orang mengira aplikasinya
-/// menggantung dan menekan tombolnya lagi.
 class AttendanceRequestSubmitting extends AttendanceRequestState {
   final String step;
 

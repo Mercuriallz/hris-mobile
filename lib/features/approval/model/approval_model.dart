@@ -30,21 +30,14 @@ class ApprovalResponseModel {
 class ApprovalData {
   String? id;
 
-  /// 'attendance_correction', 'leave', atau 'overtime'.
   String? requestType;
 
-  /// Id baris di modul asalnya. Kotak masuk tidak perlu tahu isinya —
-  /// ringkasannya sudah dibekukan di summary.
+
   String? referenceId;
 
   String? requesterEmployeeId;
 
-  /// Kalimat siap baca yang disusun modul asal saat pengajuan dibuat, mis.
-  /// "Lupa clock out — Chairunnisa, 2026-08-24, shift Malam".
-  ///
-  /// Dibekukan, bukan disusun ulang saat dibaca. Kalau nanti nama shift atau
-  /// jenis cutinya diubah HR, ringkasan pengajuan lama tetap menceritakan apa
-  /// yang disetujui saat itu.
+
   String? summary;
 
   String? status;

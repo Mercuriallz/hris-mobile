@@ -10,12 +10,6 @@ import '../cubit/approval_state.dart';
 import '../model/approval_model.dart';
 import 'approval_detail_page.dart';
 
-/// Kotak masuk persetujuan, satu untuk semua jenis pengajuan.
-///
-/// Tidak ada penyaringan per jenis, dan itu disengaja. Penyetuju yang membuka
-/// aplikasi ingin tahu "apa yang menunggu saya" — bukan "apa cuti yang
-/// menunggu saya". Memisahkannya per jenis berarti dia harus memeriksa tiga
-/// tempat dan mengingat mana yang sudah dilihat.
 class ApprovalInboxPage extends StatefulWidget {
   const ApprovalInboxPage({super.key});
 
@@ -52,8 +46,7 @@ class _ApprovalInboxPageState extends State<ApprovalInboxPage> {
           }
         },
 
-        // State keputusan tidak membangun ulang daftar — kalau ikut, daftarnya
-        // berkedip kosong setiap kali ada pesan.
+ 
         buildWhen: (previous, current) =>
             current is! ApprovalDecided && current is! ApprovalDecideError,
 
@@ -137,7 +130,6 @@ class _ApprovalCard extends StatelessWidget {
     }
   }
 
-  /// Langkah yang sedang giliran penyetuju ini.
   Steps? get _currentStep {
     final steps = item.steps;
     if (steps == null) return null;
@@ -189,9 +181,6 @@ class _ApprovalCard extends StatelessWidget {
 
             const SizedBox(height: 8),
 
-            // Ringkasan yang dibekukan modul asal. Kartunya tidak perlu tahu
-            // apa pun tentang cuti maupun absensi — dan itu yang membuat
-            // menambah jenis pengajuan baru tidak menyentuh layar ini.
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(12),
@@ -230,13 +219,7 @@ class _ApprovalCard extends StatelessWidget {
 
             const SizedBox(height: 14),
 
-            // Satu tombol yang membuka detail, bukan dua tombol keputusan
-            // langsung di kartu.
-            //
-            // Untuk koreksi absensi, swafoto adalah satu-satunya bukti — dan
-            // tombol Setujui di daftar berarti orang bisa memutuskan tanpa
-            // pernah melihatnya. Memindahkannya ke halaman detail menambah satu
-            // ketukan, dan ketukan itu yang memastikan buktinya terlihat.
+    
             FilledButton.icon(
               onPressed: isDeciding ? null : () => _openDetail(context),
               icon: isDeciding
@@ -268,8 +251,6 @@ class _ApprovalCard extends StatelessWidget {
       ),
     );
 
-    // Kotak masuk dimuat ulang hanya kalau ada keputusan. Kembali tanpa
-    // memutuskan tidak perlu memicu permintaan jaringan.
     if (decided == true && context.mounted) {
       context.read<ApprovalCubit>().fetchInbox(silent: true);
     }

@@ -8,12 +8,7 @@ import 'package:hris_mobile/features/auth/login/cubit/login_state.dart';
 
 
 
-/// Ganti password wajib.
-///
-/// Tidak bisa dilewati, dan tidak ada tombol kembali. Backend menolak seluruh
-/// endpoint lain sampai ini selesai lewat PasswordChangeRequiredGuard, jadi
-/// membiarkan orang keluar dari halaman ini cuma menghasilkan aplikasi yang
-/// tidak bisa memuat apa pun.
+
 class ChangePasswordPage extends StatefulWidget {
   const ChangePasswordPage({super.key});
 
@@ -150,10 +145,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                   ),
                 ),
 
-                // Ketidakcocokan ditampilkan sambil mengetik, bukan setelah
-                // tombol ditekan. Menunggu sampai kirim berarti orang mengetik
-                // dua kolom panjang lalu diberi tahu bahwa keduanya berbeda —
-                // dan dia tidak bisa melihat mana yang salah.
+        
                 if (_confirmController.text.isNotEmpty &&
                     _newController.text != _confirmController.text) ...[
                   const SizedBox(height: 8),

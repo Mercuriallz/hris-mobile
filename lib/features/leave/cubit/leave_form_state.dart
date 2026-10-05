@@ -2,11 +2,7 @@ import 'package:equatable/equatable.dart';
 
 import '../model/leave_model.dart';
 
-/// State formulir dipisah dari state daftar.
-///
-/// Kalau disatukan, menghitung pratinjau akan menimpa state daftar — dan
-/// daftar di belakang formulir berkedip kosong setiap kali orang mengubah
-/// tanggal.
+
 abstract class LeaveFormState extends Equatable {
   @override
   List<Object> get props => [];
@@ -30,11 +26,7 @@ class LeaveFormPreviewed extends LeaveFormState {
       ];
 }
 
-/// Pratinjau ditolak — mis. tidak ada hari kerja di rentang itu, atau sisa
-/// jatah tidak cukup.
-///
-/// Dipisah dari kegagalan pengiriman karena artinya berbeda: ini berarti
-/// pengajuannya belum sah, bukan bahwa pengirimannya gagal.
+
 class LeaveFormPreviewRejected extends LeaveFormState {
   final String message;
   final String? code;
@@ -45,10 +37,7 @@ class LeaveFormPreviewRejected extends LeaveFormState {
   List<Object> get props => [message, code ?? ''];
 }
 
-/// Sedang mengirim, dengan keterangan langkahnya.
-///
-/// Unggahan lampiran bisa memakan belasan detik di jaringan seluler — tanpa
-/// penanda, orang mengira aplikasinya menggantung dan menekan tombolnya lagi.
+
 class LeaveFormSubmitting extends LeaveFormState {
   final String step;
 

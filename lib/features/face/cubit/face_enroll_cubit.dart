@@ -22,10 +22,7 @@ class FaceEnrollCubit extends Cubit<FaceEnrollState> {
     );
   }
 
-  /// Menghitung embedding dari foto lalu mendaftarkannya.
-  ///
-  /// Fotonya dihapus setelah dipakai. Tidak dikirim ke server, tidak disimpan
-  /// di HP — yang keluar cuma deret angka hasil perhitungan.
+
   void enroll(String photoPath) async {
     try {
       emit(FaceEnrollProcessing('Memeriksa wajah...'));
@@ -48,9 +45,7 @@ class FaceEnrollCubit extends Cubit<FaceEnrollState> {
         data: {
           "embedding": embedding,
           "modelVersion": kFaceModelVersion,
-          // Persetujuan dikirim eksplisit, bukan diasumsikan dari fakta bahwa
-          // tombolnya ditekan. Data biometrik butuh izin tercatat menurut UU
-          // PDP 27/2022, dan layar sebelum ini yang memintanya.
+         
           "consent": true,
         },
       );
@@ -64,8 +59,7 @@ class FaceEnrollCubit extends Cubit<FaceEnrollState> {
 
       emit(FaceEnrollError(errorMessageFromResponse(response)));
     } on FaceFailure catch (e) {
-      // Kegagalan foto dibedakan supaya layarnya bisa menawarkan "ambil
-      // ulang" alih-alih "coba lagi" — dan keduanya tindakan yang berbeda.
+   
       emit(FaceEnrollPhotoError(e.message));
     } catch (e) {
       emit(FaceEnrollError(errorMessage(e)));

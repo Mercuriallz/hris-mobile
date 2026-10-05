@@ -9,12 +9,6 @@ import '../cubit/face_enroll_cubit.dart';
 import '../cubit/face_enroll_state.dart';
 import 'face_scan_page.dart';
 
-/// Pendaftaran wajah untuk verifikasi absensi.
-///
-/// Dua langkah: baca penjelasan lalu setuju, baru ambil foto. Persetujuan
-/// tidak boleh tersirat dari fakta bahwa seseorang menekan tombol kamera —
-/// data biometrik butuh izin yang tercatat menurut UU PDP 27/2022, dan izin
-/// yang diberikan tanpa tahu apa yang disimpan bukan izin.
 class FaceEnrollPage extends StatefulWidget {
   const FaceEnrollPage({super.key});
 
@@ -31,12 +25,6 @@ class _FaceEnrollPageState extends State<FaceEnrollPage> {
     context.read<FaceEnrollCubit>().fetchStatus();
   }
 
-  /// Memindai dengan kamera langsung, bukan ImagePicker.
-  ///
-  /// Bedanya bukan kerapian: pemindai memberi arahan SEBELUM fotonya diambil
-  /// — dekatkan wajah, buka mata, hanya Anda di bingkai. ImagePicker cuma
-  /// bisa menolak setelahnya, dan orang yang ditolak tiga kali tanpa tahu
-  /// kenapa akan menyerah.
   Future<void> _takePhoto() async {
     final path = await Navigator.push<String>(
       context,
@@ -113,10 +101,7 @@ class _FaceEnrollPageState extends State<FaceEnrollPage> {
                   Text('YANG DISIMPAN', style: AppText.label),
                   const SizedBox(height: 10),
 
-                  // Penjelasannya soal APA yang disimpan, bukan soal
-                  // manfaatnya. Persetujuan yang diberikan tanpa tahu apa yang
-                  // disimpan bukan persetujuan — dan "untuk keamanan absensi"
-                  // tidak memberi tahu apa pun.
+              
                   const _Point(
                     icon: Icons.calculate_outlined,
                     text: 'Yang disimpan bukan foto, melainkan deret angka '
@@ -226,10 +211,7 @@ class _StatusCard extends StatelessWidget {
     final needsReenroll = status.needsReenroll(kFaceModelVersion) == true;
 
     if (needsReenroll) {
-      // Ini keadaan yang paling perlu dijelaskan. Wajahnya sudah terdaftar,
-      // tapi dengan model versi lama — jadi pencocokannya akan selalu
-      // ditandai sampai didaftarkan ulang. Tanpa penjelasan ini, orangnya
-      // tidak akan pernah tahu kenapa absensinya selalu bermasalah.
+ 
       return Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(

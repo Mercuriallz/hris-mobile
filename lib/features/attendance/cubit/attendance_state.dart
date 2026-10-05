@@ -14,9 +14,7 @@ class AttendanceLoading extends AttendanceState {}
 class AttendanceLoaded extends AttendanceState {
   final List<ShiftCard> cards;
 
-  /// Id penugasan yang sedang diproses. Dipakai menampilkan pemuatan hanya di
-  /// kartu yang diketuk, bukan di seluruh layar — kartu lain tetap terbaca,
-  /// dan membaca GPS bisa memakan belasan detik.
+
   final String? processingShiftId;
 
   AttendanceLoaded(this.cards, {this.processingShiftId});
@@ -37,11 +35,7 @@ class AttendanceError extends AttendanceState {
   List<Object> get props => [message];
 }
 
-/// Hasil clock in atau clock out. Sekali pakai — layar menampilkannya lewat
-/// listener, lalu cubit langsung memancarkan AttendanceLoaded yang baru.
-///
-/// Dipisah dari AttendanceLoaded supaya pesannya tidak muncul lagi setiap kali
-/// daftar dimuat ulang.
+
 class AttendanceActionSuccess extends AttendanceState {
   final String message;
 

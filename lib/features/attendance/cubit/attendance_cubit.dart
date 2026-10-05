@@ -100,9 +100,7 @@ class AttendanceCubit extends Cubit<AttendanceState> {
           "longitude": location.longitude,
           "accuracy": location.accuracy,
           "isMocked": location.isMocked,
-          // Hanya disertakan kalau ada. Backend menandai absensi tanpa
-          // embedding untuk ditinjau, bukan menolaknya — kecuali
-          // perusahaannya mewajibkan.
+       
           "faceEmbedding": ?embedding,
           if (embedding != null) "faceModelVersion": kFaceModelVersion,
         },
@@ -113,12 +111,7 @@ class AttendanceCubit extends Cubit<AttendanceState> {
 
         emit(AttendanceActionSuccess(successMessage));
 
-        // Kartu dimuat ulang dari server, bukan diubah di sisi aplikasi.
-        //
-        // Status kartu ditentukan banyak hal — batas clock out, keterlambatan,
-        // penanda tinjauan. Menebaknya di sini berarti tampilan bisa berbeda
-        // dari yang sebenarnya tercatat, dan yang salah justru yang dilihat
-        // karyawan.
+       
         fetchShifts(silent: true);
         return;
       }
@@ -128,23 +121,16 @@ class AttendanceCubit extends Cubit<AttendanceState> {
         code: errorCodeFromResponse(response),
       ));
 
-      // Daftar dipulihkan supaya kartunya tidak hilang setelah penolakan.
       emit(AttendanceLoaded(currentCards));
     } on FaceFailure catch (e) {
-      // Kegagalan wajah dibedakan dari kegagalan jaringan. Pesannya sudah
-      // menjelaskan tindak lanjutnya — dekatkan wajah, perbaiki cahaya —
-      // sementara errorMessage() akan menggantinya dengan pesan jaringan
-      // yang tidak berhubungan.
+     
       emit(AttendanceActionError(e.message, code: e.reason.name));
       emit(AttendanceLoaded(currentCards));
     } catch (e) {
       emit(AttendanceActionError(errorMessage(e), code: errorCode(e)));
       emit(AttendanceLoaded(currentCards));
     } finally {
-      // Fotonya dihapus apa pun hasilnya. Berkas sementara dari kamera tidak
-      // selalu dibersihkan sistem, dan foto wajah yang tertinggal di
-      // penyimpanan sementara adalah data yang tidak pernah dimaksudkan
-      // tersimpan.
+   
       if (photoPath != null) await deleteTempPhoto(photoPath);
     }
   }

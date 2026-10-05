@@ -54,24 +54,20 @@ class AttendanceHistoryData {
   int? clockOutDistanceMeters;
   bool? clockOutIsMocked;
 
-  /// Sudah dikurangi toleransi. Shift dengan toleransi 15 menit yang diabseni
-  /// terlambat 20 menit mengembalikan 5, bukan 20.
+
   int? lateMinutes;
 
   bool? needsReview;
   String? reviewReason;
 
-  /// 'mobile', 'manual', atau 'offline_sync'.
   String? source;
 
   String? deviceId;
   String? deviceReportedAt;
 
-  /// 'present', 'late', 'incomplete', 'absent', 'scheduled', atau 'on_leave'.
   String? status;
 
-  /// Terisi kalau statusnya on_leave. Belum ada sebelum backend menambahkan
-  /// pemeriksaan cuti — nullable supaya model ini jalan di kedua keadaan.
+  
   String? leaveTypeName;
 
   AttendanceHistoryData({
@@ -221,8 +217,6 @@ class Office {
   }
 }
 
-/// Postgres numeric kadang datang sebagai String lewat JSON, jadi tidak bisa
-/// langsung di-cast ke double.
 double? _toDouble(dynamic value) {
   if (value == null) return null;
   if (value is double) return value;
@@ -230,11 +224,7 @@ double? _toDouble(dynamic value) {
   return double.tryParse(value.toString());
 }
 
-/// Rangkuman sebulan, dihitung di sisi aplikasi.
-///
-/// Backend mengembalikan baris per shift tanpa rangkuman, dan menambahkannya
-/// di sana berarti mengubah bentuk yang sudah dipakai Rekap Absensi di
-/// dashboard. Menjumlahkan tiga puluh baris di HP tidak terasa apa pun.
+
 class HistorySummary {
   final int scheduledDays;
   final int presentDays;
@@ -264,9 +254,7 @@ class HistorySummary {
 
     for (final row in rows) {
       switch (row.status) {
-        // 'late' tetap dihitung hadir. Orang yang terlambat toh masuk kerja,
-        // dan memisahkannya dari "hadir" membuat jumlah hadir terlihat lebih
-        // buruk daripada kenyataannya.
+
         case 'present':
         case 'late':
           present += 1;
