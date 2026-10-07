@@ -104,6 +104,8 @@ class _AttendancePageState extends State<AttendancePage> {
       }
     }
 
+    if (!mounted) return '';
+
     final path = await Navigator.push<String>(
       context,
       MaterialPageRoute(

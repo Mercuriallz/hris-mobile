@@ -26,10 +26,6 @@ class DioService {
         receiveTimeout: const Duration(seconds: 20),
         contentType: Headers.jsonContentType,
 
-        // Status 4xx TIDAK dianggap error transport, supaya body-nya bisa
-        // dibaca. Penolakan seperti "Anda 340 meter dari kantor" datang
-        // sebagai 409 dengan pesan yang memang perlu ditampilkan, bukan
-        // ditelan jadi "request failed".
         validateStatus: (status) => status != null && status < 500,
       ),
     );
@@ -49,8 +45,6 @@ class DioService {
         onResponse: (response, handler) async {
           final status = response.statusCode ?? 0;
 
-          // Token ditolak berarti sesinya sudah tidak sah, apa pun
-          // penyebabnya. Ditangani dari satu tempat, bukan di setiap cubit.
           if (status == 401) {
             await storage.clearSession();
             onUnauthorized?.call();

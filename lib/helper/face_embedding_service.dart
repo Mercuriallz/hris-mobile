@@ -6,24 +6,11 @@ import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'package:image/image.dart' as img;
 import 'package:tflite_flutter/tflite_flutter.dart';
 
-/// Versi model. WAJIB dikirim bersama embedding.
-///
-/// Backend menyimpan versi ini saat pendaftaran dan membandingkannya saat
-/// absensi. Embedding dari model berbeda menghasilkan angka yang terlihat
-/// masuk akal tapi artinya kosong — jenis kesalahan yang paling berbahaya,
-/// karena tidak terlihat seperti kesalahan.
-///
-/// UBAH INI setiap kali berkas modelnya diganti. Kalau lupa, seluruh karyawan
-/// gagal cocok tanpa ada yang tahu penyebabnya.
+
 const String kFaceModelVersion = 'mobilefacenet-v1';
 
 const String _modelAsset = 'assets/models/mobilefacenet.tflite';
 
-/// Kenapa perhitungan embedding gagal.
-///
-/// Dibedakan karena tindak lanjutnya berbeda: wajah tidak terdeteksi berarti
-/// fotonya perlu diulang, sementara model gagal dimuat berarti aplikasinya
-/// bermasalah dan mengulang foto tidak menolong.
 enum FaceFailureReason {
   noFace,
   multipleFaces,
@@ -42,14 +29,7 @@ class FaceFailure implements Exception {
   String toString() => message;
 }
 
-/// Menghitung embedding wajah di HP.
-///
-/// Dipilih di HP, bukan di server: menghitungnya di sini sekitar 100–200 ms,
-/// sementara mengunggah foto lalu memprosesnya di server beberapa detik — dan
-/// orangnya berdiri di depan pintu selama itu.
-///
-/// Fotonya TIDAK pernah dikirim ke server. Yang keluar dari HP cuma deret
-/// angka hasil perhitungan ini.
+
 class FaceEmbeddingService {
   FaceEmbeddingService._();
   static final FaceEmbeddingService instance = FaceEmbeddingService._();
@@ -60,23 +40,12 @@ class FaceEmbeddingService {
   int _inputSize = 112;
   int _outputSize = 192;
 
-  /// Memuat model sekali, lalu dipakai berulang.
-  ///
-  /// Memuat interpreter memakan ratusan milidetik. Kalau dimuat setiap kali
-  /// tombol ditekan, clock in terasa tersendat justru di saat orangnya paling
-  /// tidak sabar.
   Future<void> _ensureReady() async {
     if (_interpreter != null && _detector != null) return;
 
     try {
       _interpreter ??= await Interpreter.fromAsset(_modelAsset);
 
-      // Bentuk masukan dan keluaran dibaca DARI MODEL, tidak ditulis di kode.
-      //
-      // Dengan begitu mengganti model dengan yang dimensinya berbeda — 128
-      // alih-alih 192 — tidak perlu mengubah apa pun di sini. Angka yang
-      // ditulis di kode dan tidak cocok dengan modelnya menghasilkan
-      // pembacaan memori yang salah, bukan pesan kesalahan.
       final inputShape = _interpreter!.getInputTensor(0).shape;
       final outputShape = _interpreter!.getOutputTensor(0).shape;
 
@@ -96,30 +65,20 @@ class FaceEmbeddingService {
 
     _detector ??= FaceDetector(
       options: FaceDetectorOptions(
-        // Akurat, bukan cepat. Bedanya sekitar 100 ms, dan salah memotong
-        // wajah jauh lebih mahal daripada seratus milidetik.
+ 
         performanceMode: FaceDetectorMode.accurate,
 
-        // Landmark dan klasifikasi tidak dipakai — mematikannya menghemat
-        // waktu dan memori.
+
         enableLandmarks: false,
         enableClassification: false,
         enableTracking: false,
 
-        // Wajah yang lebih kecil dari 15% tinggi gambar diabaikan. Itu
-        // menyaring orang di latar belakang tanpa perlu memeriksanya satu
-        // per satu.
+
         minFaceSize: 0.15,
       ),
     );
   }
 
-  /// Menghitung embedding dari sebuah berkas foto.
-  ///
-  /// Melempar [FaceFailure] kalau wajahnya tidak bisa dipakai. Tidak pernah
-  /// mengembalikan embedding yang meragukan — embedding dari foto tanpa wajah
-  /// tetap berupa deret angka, dan angka itu akan dibandingkan seolah-olah
-  /// berarti sesuatu.
   Future<List<double>> embedFromFile(String path) async {
     await _ensureReady();
 
@@ -145,12 +104,6 @@ class FaceEmbeddingService {
     return _runModel(resized);
   }
 
-  /// Mendeteksi tepat satu wajah.
-  ///
-  /// Nol wajah dan dua wajah keduanya ditolak, dengan pesan yang berbeda.
-  /// Dua wajah di swafoto absensi berarti ada orang lain di belakang — dan
-  /// memilih yang terbesar berarti sistem menebak siapa yang seharusnya
-  /// diperiksa.
   Future<Face> _detectSingleFace(String path) async {
     final faces = await _detector!.processImage(InputImage.fromFilePath(path));
 
@@ -171,15 +124,6 @@ class FaceEmbeddingService {
     return faces.first;
   }
 
-  /// Memotong bagian wajah dengan sedikit margin.
-  ///
-  /// Pemotongan ini yang paling menentukan ketepatannya. Tanpa memotong,
-  /// latar belakang ikut masuk perhitungan dan dua foto orang yang sama di
-  /// tempat berbeda bisa terbaca sebagai dua orang.
-  ///
-  /// Margin 20% karena model wajah dilatih dengan potongan yang menyertakan
-  /// sedikit dahi dan dagu. Potongan yang terlalu rapat menghilangkan bagian
-  /// yang justru dipakai membedakan.
   img.Image _cropFace(img.Image source, Face face) {
     final box = face.boundingBox;
 
@@ -196,9 +140,7 @@ class FaceEmbeddingService {
     final width = right - left;
     final height = bottom - top;
 
-    // Wajah yang terlalu kecil ditolak. Memperbesar potongan 40 piksel jadi
-    // 112 menghasilkan gambar buram, dan embedding dari gambar buram
-    // berbeda jauh dari embedding wajah yang sama diambil dekat.
+
     if (width < 60 || height < 60) {
       throw const FaceFailure(
         FaceFailureReason.faceTooSmall,
@@ -215,13 +157,8 @@ class FaceEmbeddingService {
     );
   }
 
-  /// Menjalankan model dan menormalkan hasilnya.
   List<double> _runModel(img.Image face) {
-    // Piksel dinormalkan ke rentang -1 sampai 1 dengan (x - 127.5) / 128.
-    //
-    // Itu normalisasi yang dipakai MobileFaceNet saat dilatih. Normalisasi
-    // yang berbeda menghasilkan embedding yang tetap berupa angka tapi
-    // kemiripannya tidak lagi berarti apa pun.
+
     final input = List.generate(
       1,
       (_) => List.generate(
@@ -252,11 +189,7 @@ class FaceEmbeddingService {
     return _l2Normalize(output[0]);
   }
 
-  /// Menormalkan panjang vektor jadi 1.
-  ///
-  /// Kemiripan kosinus di backend sudah mengabaikan panjangnya, jadi ini
-  /// bukan syarat. Tapi vektor yang panjangnya seragam membuat skornya
-  /// sebanding antar perangkat — dan itu penting saat mengalibrasi ambangnya.
+
   List<double> _l2Normalize(List<double> vector) {
     var sum = 0.0;
     for (final v in vector) {
@@ -274,7 +207,6 @@ class FaceEmbeddingService {
     return vector.map((v) => v / norm).toList();
   }
 
-  /// Dilepas saat aplikasi ditutup, bukan setelah setiap pemakaian.
   Future<void> dispose() async {
     _interpreter?.close();
     _interpreter = null;
@@ -284,32 +216,21 @@ class FaceEmbeddingService {
   }
 }
 
-/// Menghapus berkas foto sementara.
-///
-/// Fotonya tidak disimpan di mana pun — tidak di server, tidak di HP. Yang
-/// keluar cuma embedding-nya. Berkas sementara dari kamera perlu dihapus
-/// sendiri karena sistem tidak selalu membersihkannya.
+
 Future<void> deleteTempPhoto(String path) async {
   try {
     final file = File(path);
     if (await file.exists()) await file.delete();
   } catch (e) {
-    // Gagal menghapus bukan alasan menggagalkan absensi. Dicatat saja.
     debugPrint('Foto sementara gagal dihapus: $e');
   }
 }
 
-/// Dipakai memeriksa panjang embedding sebelum dikirim.
-///
-/// Backend menolak yang di luar 64–1024, dan pesan penolakannya tidak
-/// menjelaskan apa yang harus dilakukan pengguna. Lebih baik ditangkap di
-/// sini.
 bool isPlausibleEmbedding(List<double> embedding) =>
     embedding.length >= 64 &&
     embedding.length <= 1024 &&
     embedding.every((v) => v.isFinite);
 
-/// Dipakai debugging: dua embedding dari orang yang sama harus di atas 0,65.
 @visibleForTesting
 double cosineSimilarity(List<double> a, List<double> b) {
   if (a.length != b.length) return 0;
@@ -328,11 +249,6 @@ double cosineSimilarity(List<double> a, List<double> b) {
   return dot / (math.sqrt(na) * math.sqrt(nb));
 }
 
-/// Float32List dipakai kalau nanti model butuh masukan rata.
-///
-/// Belum dipakai — MobileFaceNet menerima bentuk bersarang. Disimpan karena
-/// beberapa model lain menuntut bentuk ini, dan mengubahnya nanti berarti
-/// menulis ulang normalisasinya.
 @visibleForTesting
 Float32List flattenPixels(img.Image image, int size) {
   final buffer = Float32List(size * size * 3);

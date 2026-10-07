@@ -35,10 +35,7 @@ String errorMessage(Object error) {
   return 'Terjadi kesalahan. Coba lagi.';
 }
 
-/// Kode `error` dari backend, mis. 'OutsideRadius' atau 'DeviceNotRecognized'.
-///
-/// Dipakai layar untuk menampilkan petunjuk khusus tanpa mencocokkan teks
-/// pesan yang bisa berubah.
+
 String? errorCode(Object error) {
   if (error is DioException) {
     final data = error.response?.data;
@@ -48,12 +45,6 @@ String? errorCode(Object error) {
   return null;
 }
 
-/// Versi untuk Response yang statusnya 4xx.
-///
-/// validateStatus di DioService meloloskan 4xx supaya body-nya bisa dibaca,
-/// jadi penolakan sampai ke pemanggil sebagai Response biasa — bukan lewat
-/// catch. Dua fungsi di bawah menghindari keharusan membungkusnya jadi
-/// DioException dulu di setiap tempat.
 String errorMessageFromResponse(Response response) {
   final data = response.data;
 

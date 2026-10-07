@@ -1,0 +1,16 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!--
+    Versi satu warna, untuk stempel, faks, dokumen hitam putih, dan sablon.
+    currentColor supaya bisa diwarnai lewat CSS tanpa mengganti berkas.
+
+    Titik di ujung kanan dibuat berlubang, bukan penuh — kalau penuh, dia
+    menyatu dengan garis W saat dicetak kecil dan bentuknya hilang.
+  -->
+  <path d="M17 20 L24 44 L32 29 L40 44 L47 20"
+        stroke="currentColor"
+        stroke-width="5.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"/>
+
+  <circle cx="47" cy="20" r="6.5" fill="none" stroke="currentColor" stroke-width="3"/>
+</svg>

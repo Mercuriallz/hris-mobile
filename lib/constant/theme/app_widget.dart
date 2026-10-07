@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:hris_mobile/constant/theme/app_color.dart';
 import 'package:hris_mobile/constant/theme/app_text.dart';
 
-
 /// Empat nada status yang dipakai di seluruh aplikasi.
 ///
 /// Dibatasi empat supaya artinya tetap terbaca. Begitu ada tujuh warna
@@ -104,10 +103,7 @@ class EmptyState extends StatelessWidget {
             Text(title, textAlign: TextAlign.center, style: AppText.h2),
             const SizedBox(height: 6),
             Text(message, textAlign: TextAlign.center, style: AppText.caption),
-            if (action != null) ...[
-              const SizedBox(height: 20),
-              action!,
-            ],
+            if (action != null) ...[const SizedBox(height: 20), action!],
           ],
         ),
       ),
@@ -157,9 +153,7 @@ class ErrorState extends StatelessWidget {
               onPressed: onRetry,
               icon: const Icon(Icons.refresh, size: 18),
               label: const Text('Coba Lagi'),
-              style: OutlinedButton.styleFrom(
-                minimumSize: const Size(160, 44),
-              ),
+              style: OutlinedButton.styleFrom(minimumSize: const Size(160, 44)),
             ),
           ],
         ),
@@ -183,6 +177,36 @@ class InfoRow extends StatelessWidget {
         const SizedBox(width: 8),
         Expanded(child: Text(text, style: AppText.caption)),
       ],
+    );
+  }
+}
+
+/// Cahaya warna yang sangat tipis berbentuk lingkaran, memudar ke tepi.
+///
+/// Dipakai di sudut layar berlatar putih supaya halaman punya kedalaman
+/// tanpa perlu blok warna pekat yang bersaing dengan konten.
+class SoftGlow extends StatelessWidget {
+  final double size;
+  final Color color;
+
+  const SoftGlow({super.key, required this.size, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return IgnorePointer(
+      child: Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          gradient: RadialGradient(
+            colors: [
+              color.withValues(alpha: 0.14),
+              color.withValues(alpha: 0.0),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

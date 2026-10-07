@@ -1,0 +1,28 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!--
+    Tanda utama Workonix.
+
+    Bentuknya "W" yang ujung kanannya berakhir sebagai titik penuh — bukan
+    sudut. Titik itu membaca sebagai momen: saat seseorang menekan clock in.
+
+    Dirancang untuk 24 piksel lebih dulu, bukan untuk ukuran besar. Ikon
+    aplikasi, favicon, dan avatar semuanya kecil — logo yang cuma bagus di
+    kop surat akan jadi bercak abu-abu di tempat yang paling sering dilihat.
+  -->
+  <defs>
+    <linearGradient id="wxBg" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1A56A7"/>
+      <stop offset="1" stop-color="#0F3B7A"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="64" height="64" rx="16" fill="url(#wxBg)"/>
+
+  <path d="M17 20 L24 44 L32 29 L40 44 L47 20"
+        stroke="#FFFFFF"
+        stroke-width="5.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"/>
+
+  <circle cx="47" cy="20" r="5" fill="#7FB3F5"/>
+</svg>

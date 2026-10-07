@@ -5,27 +5,6 @@ import 'package:device_info_plus/device_info_plus.dart';
 
 import 'storage.dart';
 
-/// Identitas perangkat untuk pengikatan absensi.
-///
-/// Backend hanya mengizinkan satu perangkat per karyawan. Kalau id ini
-/// berubah, orangnya ditolak saat login dan harus minta HR mereset
-/// perangkatnya. Untuk dua ratus karyawan, id yang hilang setiap kali
-/// aplikasi dipasang ulang berarti keluhan mingguan — jadi ketahanannya
-/// adalah pertimbangan utama, bukan detail.
-///
-/// Urutannya:
-///
-///   1. Baca dari secure storage. Di iOS, Keychain bertahan melewati
-///      penghapusan aplikasi, jadi ini saja sudah cukup di sana.
-///
-///   2. Kalau kosong, pakai identitas dari sistem operasi. Android ID
-///      bertahan melewati pemasangan ulang dan hanya berubah saat reset
-///      pabrik. identifierForVendor di iOS bertahan selama masih ada aplikasi
-///      dari penerbit yang sama.
-///
-///   3. Kalau keduanya gagal, buat acak. Ini jalan terakhir — id acak tidak
-///      bertahan melewati pemasangan ulang di Android, dan orangnya akan
-///      perlu reset perangkat.
 class DeviceIdService {
   static const _key = "deviceId";
 
@@ -56,8 +35,7 @@ class DeviceIdService {
             : null;
       }
     } catch (_) {
-      // Beberapa ROM Android menyembunyikan atau mengubah nilai ini. Jatuh ke
-      // acak daripada gagal sama sekali.
+
       return null;
     }
     return null;
@@ -70,7 +48,6 @@ class DeviceIdService {
     return 'gen-$hex';
   }
 
-  /// Nama perangkat untuk ditampilkan HR di daftar perangkat.
   Future<String> describe() async {
     try {
       final deviceInfo = DeviceInfoPlugin();
