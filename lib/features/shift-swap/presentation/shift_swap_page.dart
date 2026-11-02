@@ -428,7 +428,7 @@ class _PreviewCard extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.block, size: 16, color: AppColor.danger),
+                    Icon(Icons.block, size: 16, color: AppColor.danger),
                     const SizedBox(width: 8),
                     Text(
                       'Tidak bisa ditukar',
@@ -469,7 +469,7 @@ class _PreviewCard extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.info_outline,
+                    Icon(Icons.info_outline,
                         size: 16, color: AppColor.warning),
                     const SizedBox(width: 8),
                     Text(
@@ -549,7 +549,7 @@ class _NoCandidates extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.swap_horiz,
+          Icon(Icons.swap_horiz,
               size: 44, color: AppColor.textDisabled),
           const SizedBox(height: 16),
           Text(

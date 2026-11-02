@@ -152,7 +152,7 @@ class _MonthTotal extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
+        gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [AppColor.primary, AppColor.primaryDark],
@@ -338,7 +338,7 @@ class _RequestCard extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        const Icon(Icons.info_outline,
+                        Icon(Icons.info_outline,
                             size: 15, color: AppColor.danger),
                         const SizedBox(width: 6),
                         Text(

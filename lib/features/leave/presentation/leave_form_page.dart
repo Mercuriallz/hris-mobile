@@ -613,7 +613,7 @@ class _PreviewCard extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.info_outline,
                     size: 16,
                     color: AppColor.warning,
@@ -714,7 +714,7 @@ class _PreviewRejected extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.error_outline, size: 18, color: AppColor.danger),
+          Icon(Icons.error_outline, size: 18, color: AppColor.danger),
           const SizedBox(width: 10),
           Expanded(
             child: Text(

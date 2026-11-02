@@ -70,7 +70,7 @@ class _BottomMainState extends State<BottomMain> {
           backgroundColor: AppColor.background,
           body: SafeArea(child: IndexedStack(index: safeIndex, children: screens)),
           bottomNavigationBar: Container(
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               color: AppColor.surface,
               border: Border(top: BorderSide(color: AppColor.border)),
             ),

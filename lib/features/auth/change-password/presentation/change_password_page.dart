@@ -69,7 +69,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.lock_outline,
                         size: 18,
                         color: AppColor.primary,
@@ -151,7 +151,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                   const SizedBox(height: 8),
                   Row(
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.error_outline,
                         size: 15,
                         color: AppColor.danger,
@@ -176,7 +176,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.error_outline,
                           size: 18,
                           color: AppColor.danger,

@@ -93,7 +93,7 @@ class EmptyState extends StatelessWidget {
             Container(
               width: 68,
               height: 68,
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 color: AppColor.primarySurface,
                 shape: BoxShape.circle,
               ),
@@ -134,11 +134,11 @@ class ErrorState extends StatelessWidget {
             Container(
               width: 68,
               height: 68,
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 color: AppColor.dangerSurface,
                 shape: BoxShape.circle,
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.cloud_off_rounded,
                 size: 30,
                 color: AppColor.danger,

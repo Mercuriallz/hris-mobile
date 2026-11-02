@@ -221,7 +221,7 @@ class _StatusCard extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Icon(Icons.autorenew, size: 18, color: AppColor.warning),
+            Icon(Icons.autorenew, size: 18, color: AppColor.warning),
             const SizedBox(width: 10),
             Expanded(
               child: Column(

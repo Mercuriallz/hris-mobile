@@ -11,6 +11,7 @@ import 'package:image_picker/image_picker.dart';
 import '../../../constant/route/app_route.dart';
 import '../../../constant/theme/app_color.dart';
 import '../../../constant/theme/app_text.dart';
+import '../../../constant/theme/theme_controller.dart';
 import '../../../helper/device_helper.dart';
 import '../../../helper/storage.dart';
 import '../../approval/presentation/approval_inbox_page.dart';
@@ -113,6 +114,12 @@ class _ProfilePageState extends State<ProfilePage> {
     });
   }
 
+  /// Sebelum switch pernah digeser, tema mengikuti sistem — jadi nilai
+  /// switch dibaca dari palet yang sedang aktif, bukan dari pilihan tersimpan.
+  void _setDark(bool dark) {
+    ThemeController.instance.setMode(dark ? ThemeMode.dark : ThemeMode.light);
+  }
+
   Future<void> _confirmLogout() async {
     final confirmed = await showDialog<bool>(
       context: context,
@@ -160,7 +167,7 @@ class _ProfilePageState extends State<ProfilePage> {
           // kumpulan halaman yang dijahit.
           Container(
             width: double.infinity,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
@@ -183,7 +190,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         setState(() => _photoUrl = state.photoUrl);
 
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
+                          SnackBar(
                             content: Text('Foto profil diperbarui'),
                             backgroundColor: AppColor.success,
                           ),
@@ -300,7 +307,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                           width: 1.5,
                                         ),
                                       ),
-                                      child: const Icon(
+                                      child: Icon(
                                         Icons.photo_camera_outlined,
                                         size: 14,
                                         color: AppColor.primary,
@@ -401,6 +408,26 @@ class _ProfilePageState extends State<ProfilePage> {
           const SizedBox(height: 16),
 
           _Section(
+            title: 'TAMPILAN',
+            children: [
+              _Tile(
+                icon: AppColor.isDark
+                    ? Icons.dark_mode_outlined
+                    : Icons.light_mode_outlined,
+                title: 'Mode gelap',
+                onTap: () => _setDark(!AppColor.isDark),
+                trailing: Switch(
+                  value: AppColor.isDark,
+                  activeThumbColor: AppColor.primary,
+                  onChanged: _setDark,
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 16),
+
+          _Section(
             title: 'AKUN',
             children: [
               _Tile(
@@ -472,6 +499,7 @@ class _Tile extends StatelessWidget {
   final String? subtitle;
   final Color? tone;
   final VoidCallback? onTap;
+  final Widget? trailing;
 
   const _Tile({
     required this.icon,
@@ -479,6 +507,7 @@ class _Tile extends StatelessWidget {
     this.subtitle,
     this.tone,
     this.onTap,
+    this.trailing,
   });
 
   @override
@@ -504,8 +533,10 @@ class _Tile extends StatelessWidget {
                 ],
               ),
             ),
-            if (onTap != null)
-              const Icon(
+            if (trailing != null)
+              trailing!
+            else if (onTap != null)
+              Icon(
                 Icons.chevron_right,
                 size: 20,
                 color: AppColor.textDisabled,

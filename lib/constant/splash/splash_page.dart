@@ -1,7 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:hris_mobile/helper/app_update_service.dart';
+import 'package:hris_mobile/helper/push_routing.dart';
 
 import '../../features/auth/login/cubit/login_cubit.dart';
 import '../route/app_route.dart';
@@ -23,35 +27,44 @@ class _SplashPageState extends State<SplashPage> {
     _decide();
   }
 
-  Future<void> _decide() async {
-    // Tahan sebentar. Kalau pengecekan sesi selesai seketika, splash cuma
-    // berkedip sepersekian detik dan terasa seperti glitch.
-    final results = await Future.wait([
-      context.read<LoginCubit>().hasSession(),
-      Future<void>.delayed(const Duration(milliseconds: 800)),
-    ]);
-    if (!mounted) return;
+ Future<void> _decide() async {
+  // Tahan sebentar. Kalau pengecekan sesi selesai seketika, splash cuma
+  // berkedip sepersekian detik dan terasa seperti glitch.
+  final results = await Future.wait([
+    context.read<LoginCubit>().hasSession(),
+    Future<void>.delayed(const Duration(milliseconds: 800)),
+  ]);
+  if (!mounted) return;
 
-    final hasSession = results.first as bool;
-    router.go(hasSession ? '/home' : '/login');
-  }
+  final hasSession = results.first as bool;
+  router.go(hasSession ? '/home' : '/login');
+
+
+  if (hasSession) unawaited(PushRouting.consumeIfReady());
+
+  // Setelah navigasi, bukan sebelumnya: dialog Play tidak boleh menahan
+  // splash, dan pengecekannya butuh jaringan yang bisa lambat.
+  unawaited(AppUpdateService.check());
+}
 
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle.dark,
+      value: AppColor.isDark
+          ? SystemUiOverlayStyle.light
+          : SystemUiOverlayStyle.dark,
       child: Scaffold(
         backgroundColor: AppColor.surface,
         body: Stack(
           children: [
             // Dua cahaya biru tipis di sudut berseberangan. Cukup untuk
             // memberi kedalaman tanpa mengalahkan logo di tengah.
-            const Positioned(
+            Positioned(
               top: -140,
               right: -120,
               child: SoftGlow(size: 360, color: AppColor.primaryLight),
             ),
-            const Positioned(
+            Positioned(
               bottom: -160,
               left: -140,
               child: SoftGlow(size: 380, color: AppColor.primary),

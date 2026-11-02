@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "296896583199",
+    "project_id": "testing-hr-c8205",
+    "storage_bucket": "testing-hr-c8205.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:296896583199:android:39b3bfb73fab0fe02ca72a",
+        "android_client_info": {
+          "package_name": "id.net.uninet.workonix"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCADf1FrKd2WfzL8q2EoScXiPnCETmViYw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

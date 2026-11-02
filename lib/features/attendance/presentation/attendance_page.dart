@@ -84,42 +84,56 @@ class _AttendancePageState extends State<AttendancePage> {
 
 
   Future<String?> _photoForVerification() async {
-    final status = _faceStatus;
+  /// Status dimuat ulang tiap kali tombol ditekan, bukan cuma saat layar
+  /// dibuat.
+  ///
+  /// Mendaftarkan wajah terjadi di tab Profil, dan berpindah tab tidak
+  /// membangun ulang layar ini — jadi status yang dipegang bisa tertinggal
+  /// dari kenyataan. Yang baru mendaftar lalu langsung absen akan melewati
+  /// verifikasi tanpa ada yang sadar, dan absensinya ditandai HR tanpa
+  /// alasan yang kelihatan.
+  ///
+  /// Satu permintaan tambahan, di momen yang memang sudah menunggu
+  /// pembacaan GPS.
+  await _loadFaceStatus();
+  if (!mounted) return '';
 
+  final status = _faceStatus;
 
-    if (status == null || !status.needsVerification) return null;
+  // Verifikasi mati: kamera tidak dibuka sama sekali. Membuka kamera untuk
+  // foto yang tidak akan diperiksa berarti menambah satu langkah tanpa
+  // menambah apa pun.
+  if (status == null || !status.needsVerification) return null;
 
-  
-    if (status.enrolled != true) {
-      if (status.isRequired == true) {
-        final enrolled = await Navigator.push<bool>(
-          context,
-          MaterialPageRoute(builder: (_) => const FaceEnrollPage()),
-        );
+  // Belum terdaftar. Kalau wajib, backend akan menolak — jadi lebih baik
+  // diarahkan mendaftar sekarang daripada ditolak setelah mengambil foto.
+  if (status.enrolled != true) {
+    if (status.isRequired == true) {
+      final enrolled = await Navigator.push<bool>(
+        context,
+        MaterialPageRoute(builder: (_) => const FaceEnrollPage()),
+      );
 
-        if (enrolled != true) return '';
-        await _loadFaceStatus();
-      } else {
-        return null;
-      }
+      if (enrolled != true) return '';
+      await _loadFaceStatus();
+      if (!mounted) return '';
+    } else {
+      return null;
     }
-
-    if (!mounted) return '';
-
-    final path = await Navigator.push<String>(
-      context,
-      MaterialPageRoute(
-        builder: (_) => const FaceScanPage(
-          title: 'Verifikasi Wajah',
-          instruction: 'Posisikan wajah di dalam bingkai',
-        ),
-      ),
-    );
-
-   
-    return path ?? '';
   }
 
+  final path = await Navigator.push<String>(
+    context,
+    MaterialPageRoute(
+      builder: (_) => const FaceScanPage(
+        title: 'Verifikasi Wajah',
+        instruction: 'Posisikan wajah di dalam bingkai',
+      ),
+    ),
+  );
+
+  return path ?? '';
+}
   @override
   void dispose() {
     _clock?.cancel();
@@ -335,7 +349,7 @@ class _Header extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -537,7 +551,7 @@ class _PrimaryShiftCard extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.info_outline,
                     size: 16,
                     color: AppColor.warning,
@@ -693,7 +707,7 @@ class _SecondaryShiftRow extends StatelessWidget {
                 color: AppColor.primarySurface,
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.calendar_today_outlined,
                 size: 18,
                 color: AppColor.primary,
@@ -829,7 +843,7 @@ class _MenuRow extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 8),
-            const Icon(
+            Icon(
               Icons.chevron_right,
               size: 20,
               color: AppColor.textDisabled,

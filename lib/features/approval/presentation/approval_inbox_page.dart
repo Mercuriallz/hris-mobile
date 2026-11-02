@@ -195,7 +195,7 @@ class _ApprovalCard extends StatelessWidget {
               const SizedBox(height: 10),
               Row(
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.account_tree_outlined,
                     size: 14,
                     color: AppColor.textSecondary,

@@ -280,7 +280,7 @@ class _OvertimeFormPageState extends State<OvertimeFormPage> {
                     const SizedBox(height: 8),
                     Row(
                       children: [
-                        const Icon(Icons.nightlight_outlined,
+                        Icon(Icons.nightlight_outlined,
                             size: 15, color: AppColor.info),
                         const SizedBox(width: 6),
                         Expanded(
@@ -557,7 +557,7 @@ class _PreviewRejected extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.error_outline, size: 18, color: AppColor.danger),
+          Icon(Icons.error_outline, size: 18, color: AppColor.danger),
           const SizedBox(width: 10),
           Expanded(
             child: Text(

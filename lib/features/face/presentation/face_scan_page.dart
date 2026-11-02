@@ -284,7 +284,7 @@ class _FaceScanPageState extends State<FaceScanPage>
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.videocam_off_outlined,
+              Icon(Icons.videocam_off_outlined,
                   size: 44, color: AppColor.textDisabled),
               const SizedBox(height: 16),
               Text(_error!, textAlign: TextAlign.center, style: AppText.body),

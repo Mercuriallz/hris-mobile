@@ -238,7 +238,7 @@ class _PhotoCard extends StatelessWidget {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.broken_image_outlined,
                           size: 32,
                           color: AppColor.danger,
@@ -281,7 +281,7 @@ class _NoPhotoCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const Icon(
+          Icon(
             Icons.no_photography_outlined,
             size: 20,
             color: AppColor.warning,
@@ -341,7 +341,7 @@ class _RequesterCard extends StatelessWidget {
             Container(
               width: 44,
               height: 44,
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 color: AppColor.primarySurface,
                 shape: BoxShape.circle,
               ),
@@ -511,7 +511,7 @@ class _DecisionBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: AppColor.surface,
         border: Border(top: BorderSide(color: AppColor.border)),
       ),
@@ -525,7 +525,7 @@ class _DecisionBar extends StatelessWidget {
                 onPressed: isDeciding ? null : () => _reject(context),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: AppColor.danger,
-                  side: const BorderSide(color: AppColor.danger),
+                  side: BorderSide(color: AppColor.danger),
                   minimumSize: const Size.fromHeight(50),
                 ),
                 child: const Text('Tolak'),

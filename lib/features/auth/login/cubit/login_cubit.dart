@@ -1,14 +1,18 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hris_mobile/helper/device_helper.dart';
 import 'package:hris_mobile/helper/dio_service.dart';
 import 'package:hris_mobile/helper/error_message.dart';
+import 'package:hris_mobile/helper/push_routing.dart';
 import 'package:hris_mobile/helper/storage.dart';
 
 
 import '../cubit/login_state.dart';
 import '../model/login_request_model.dart';
 import '../model/login_response_model.dart';
+import 'package:hris_mobile/helper/push_service.dart';
 
 class LoginCubit extends Cubit<LoginState> {
   LoginCubit() : super(LoginInitial());
@@ -64,6 +68,8 @@ class LoginCubit extends Cubit<LoginState> {
         await secureStorage.write("email", data.user!.email ?? "");
         await secureStorage.write("employeeId", data.user!.employeeId!);
         await secureStorage.write("groupId", data.user!.groupId ?? "");
+        unawaited(PushService.registerToken());
+        unawaited(PushRouting.consumeIfReady());
 
         debugPrint("Login sebagai ${data.user!.name} (${data.role})");
 
@@ -131,7 +137,10 @@ class LoginCubit extends Cubit<LoginState> {
     return token != null && token.isNotEmpty;
   }
 
+
   void logout() async {
+      PushRouting.clear();
+      await PushService.unregister();
     await SecureStorageService().clearSession();
     emit(LoginInitial());
   }

@@ -241,7 +241,7 @@ class _LoginPageState extends State<LoginPage> {
                   color: AppColor.primarySurface,
                   borderRadius: BorderRadius.circular(14),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.mark_email_unread_outlined,
                   color: AppColor.primary,
                 ),
@@ -296,7 +296,7 @@ class _Header extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -307,7 +307,7 @@ class _Header extends StatelessWidget {
         children: [
           // Cahaya biru muda di pojok, motif yang sama dengan splash, supaya
           // blok biru tua punya kedalaman dan tidak terlihat seperti cat rata.
-          const Positioned(
+          Positioned(
             top: -150,
             right: -130,
             child: SoftGlow(size: 380, color: AppColor.primaryLight),
@@ -321,7 +321,7 @@ class _Header extends StatelessWidget {
             bottom: 0,
             child: Container(
               height: 28,
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 color: AppColor.surface,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
               ),
@@ -445,7 +445,7 @@ class _ErrorBox extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(
+          Icon(
             Icons.error_outline_rounded,
             size: 18,
             color: AppColor.danger,

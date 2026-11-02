@@ -12,13 +12,17 @@ import 'package:hris_mobile/features/leave/cubit/leave_form_cubit.dart';
 import 'package:hris_mobile/features/overtime/cubit/overtime/overtime_cubit.dart';
 import 'package:hris_mobile/features/overtime/cubit/overtime_form/overtime_form_cubit.dart';
 import 'package:hris_mobile/features/shift-swap/cubit/shift_swap_cubit.dart';
+import 'package:hris_mobile/helper/push_routing.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 import 'constant/route/app_route.dart';
 import 'constant/theme/app_theme.dart';
+import 'constant/theme/theme_controller.dart';
 import 'features/attendance/cubit/attendance_cubit.dart';
 import 'features/attendance_request/cubit/attendance_request_cubit.dart';
+import 'helper/app_update_service.dart';
 import 'helper/dio_service.dart';
+import 'helper/push_service.dart';
 
 
 
@@ -33,6 +37,9 @@ void main() async {
       appEnv == "production" ? ".env.production" : ".env.development";
 
   await dotenv.load(fileName: envFile);
+  await ThemeController.instance.load();
+  await PushService.initialize();
+  PushRouting.attach();
 
 
   DioService.onUnauthorized = () => router.go('/login');
@@ -55,10 +62,16 @@ void main() async {
         BlocProvider(create: (_) => ShiftSwapCubit(),)
         
       ],
-      child: MaterialApp.router(
-        routerConfig: router,
-        theme: AppTheme.light,
-        debugShowCheckedModeBanner: false,
+      child: ValueListenableBuilder<ThemeMode>(
+        valueListenable: ThemeController.instance,
+        builder: (context, mode, _) => MaterialApp.router(
+          routerConfig: router,
+          scaffoldMessengerKey: AppUpdateService.messengerKey,
+          theme: AppTheme.light,
+          darkTheme: AppTheme.dark,
+          themeMode: mode,
+          debugShowCheckedModeBanner: false,
+        ),
       ),
     ),
   );

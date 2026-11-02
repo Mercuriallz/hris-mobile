@@ -4,6 +4,7 @@ import 'package:hris_mobile/features/shift-swap/presentation/shift_swap_page.dar
 import 'package:intl/intl.dart';
 
 
+import '../../../constant/theme/app_color.dart';
 import '../../attendance_request/presentation/attendance_request_form_page.dart';
 import '../../attendance_request/presentation/attendance_request_list_page.dart';
 import '../cubit/attendance_history_cubit.dart';
@@ -132,7 +133,7 @@ class _MonthSwitcher extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.white,
+      color: AppColor.surface,
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -161,19 +162,19 @@ class _SummaryBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.white,
+      color: AppColor.surface,
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
       child: Row(
         children: [
           _SummaryItem(
             label: 'Hadir',
             value: '${summary.presentDays}',
-            color: Colors.green.shade700,
+            color: AppColor.success,
           ),
           _SummaryItem(
             label: 'Terlambat',
             value: '${summary.lateDays}',
-            color: Colors.orange.shade800,
+            color: AppColor.warning,
             
             caption: summary.totalLateMinutes > 0
                 ? '${summary.totalLateMinutes} mnt'
@@ -346,7 +347,7 @@ class _DayTile extends StatelessWidget {
       case 'present':
         return (
           label: 'Hadir',
-          color: Colors.green.shade700,
+          color: AppColor.success,
           icon: Icons.check_circle_outline,
         );
 
@@ -354,13 +355,13 @@ class _DayTile extends StatelessWidget {
       case 'late':
         return (
           label: 'Hadir, terlambat',
-          color: Colors.orange.shade800,
+          color: AppColor.warning,
           icon: Icons.check_circle_outline,
         );
       case 'incomplete':
         return (
           label: 'Tidak clock out',
-          color: Colors.orange.shade800,
+          color: AppColor.warning,
           icon: Icons.error_outline,
         );
       case 'absent':
@@ -372,7 +373,7 @@ class _DayTile extends StatelessWidget {
       case 'on_leave':
         return (
           label: row.leaveTypeName ?? 'Cuti',
-          color: Colors.blue.shade700,
+          color: AppColor.info,
           icon: Icons.beach_access_outlined,
         );
       default:
@@ -435,7 +436,7 @@ class _DayTile extends StatelessWidget {
                     Text(
                       'Terlambat $late menit',
                       style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                            color: Colors.orange.shade900,
+                            color: AppColor.warning,
                           ),
                     ),
                   ],
