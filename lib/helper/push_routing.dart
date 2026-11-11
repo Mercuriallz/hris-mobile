@@ -25,7 +25,7 @@ import 'storage.dart';
 class PushRouting {
   PushRouting._();
 
-  /// Tujuan yang menunggu dibuka.
+  /// Rute tujuan yang menunggu dibuka, mis. `/approval/<id>`.
   ///
   /// Diisi saat ketukan datang tapi belum bisa dilayani, dan dikosongkan
   /// begitu dibuka. Disimpan di memori, bukan di penyimpanan — tujuan yang
@@ -39,15 +39,13 @@ class PushRouting {
       final data = event.notification.additionalData;
       if (data == null) return;
 
-      final type = data['type'];
-      final approvalId = data['approvalId'];
-
-      if (type != 'approval' || approvalId is! String || approvalId.isEmpty) {
+      final target = _targetOf(data);
+      if (target == null) {
         debugPrint('Ketukan notifikasi tanpa tujuan yang dikenali: $data');
         return;
       }
 
-            _pending = approvalId;
+      _pending = target;
       unawaited(consumeIfReady());
     });
   }
@@ -57,9 +55,23 @@ class PushRouting {
   /// Dipanggil tiga kali dari tempat berbeda: saat ketukan datang, setelah
   /// splash memutuskan arah, dan setelah login berhasil. Aman dipanggil
   /// berkali-kali — yang tidak punya tujuan langsung keluar.
+  /// Menerjemahkan data notifikasi jadi rute. null kalau tidak dikenali.
+  static String? _targetOf(Map<String, dynamic> data) {
+    switch (data['type']) {
+      case 'approval':
+        final id = data['approvalId'];
+        return id is String && id.isNotEmpty ? '/approval/$id' : null;
+      case 'warning_letter':
+        final id = data['id'];
+        return id is String && id.isNotEmpty ? '/warning-letters/$id' : null;
+      default:
+        return null;
+    }
+  }
+
   static Future<void> consumeIfReady() async {
-    final id = _pending;
-    if (id == null) return;
+    final target = _pending;
+    if (target == null) return;
 
     // Token dibaca dari penyimpanan, bukan dari state aplikasi. Saat
     // dingin, cubit mana pun belum tentu sudah hidup.
@@ -73,7 +85,7 @@ class PushRouting {
 
     // push, bukan go — supaya tombol kembali membawa ke layar sebelumnya,
     // bukan menutup aplikasi.
-    router.push('/approval/$id');
+    router.push(target);
   }
 
   /// Dibuang saat keluar.

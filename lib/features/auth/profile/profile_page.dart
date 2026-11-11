@@ -15,6 +15,9 @@ import '../../../constant/theme/theme_controller.dart';
 import '../../../helper/device_helper.dart';
 import '../../../helper/storage.dart';
 import '../../approval/presentation/approval_inbox_page.dart';
+import '../../warning_letter/cubit/warning_letter_cubit.dart';
+import '../../warning_letter/cubit/warning_letter_state.dart';
+import '../../warning_letter/presentation/warning_letter_page.dart';
 
 
 /// Profil karyawan.
@@ -46,6 +49,8 @@ class _ProfilePageState extends State<ProfilePage> {
     super.initState();
     _load();
     _loadPhoto();
+    // Diam-diam: gagal memuat surat tidak perlu mengganggu layar Profil.
+    context.read<WarningLetterCubit>().fetch(silent: true);
   }
 
   /// Foto diambil terpisah dan tidak menahan tampilnya layar.
@@ -371,6 +376,31 @@ class _ProfilePageState extends State<ProfilePage> {
           const SizedBox(height: 16),
 
         
+          // Surat dari HR. Penanda angka muncul selama ada surat yang belum
+          // dibuka, supaya tidak terlewat walaupun notifikasinya tergeser.
+          BlocBuilder<WarningLetterCubit, WarningLetterState>(
+            builder: (context, _) {
+              final unread = context.read<WarningLetterCubit>().unreadCount;
+              return _Section(
+                title: 'SURAT DARI HR',
+                children: [
+                  _Tile(
+                    icon: Icons.mail_outline,
+                    title: 'Teguran dan surat peringatan',
+                    subtitle: unread > 0 ? '$unread surat belum dibaca' : 'Riwayat surat dari HR',
+                    tone: unread > 0 ? AppColor.danger : null,
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const WarningLetterPage()),
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+
+          const SizedBox(height: 16),
+
           _Section(
             title: 'PERSETUJUAN',
             children: [
