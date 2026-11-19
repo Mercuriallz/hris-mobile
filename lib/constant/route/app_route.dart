@@ -4,6 +4,7 @@ import 'package:hris_mobile/constant/bottom_bar/bottom_main.dart';
 import 'package:hris_mobile/constant/splash/splash_page.dart';
 import 'package:hris_mobile/features/approval/presentation/approval_detail_page.dart';
 import 'package:hris_mobile/features/auth/change-password/presentation/change_password_page.dart';
+import 'package:hris_mobile/features/salary_slip/presentation/salary_slip_detail_page.dart';
 import 'package:hris_mobile/features/warning_letter/presentation/warning_letter_detail_page.dart';
 
 import '../../features/auth/login/presentation/login_page.dart';
@@ -50,6 +51,13 @@ final GoRouter router = GoRouter(
       path: '/warning-letters/:id',
       builder: (context, state) => WarningLetterDetailPage(
         letterId: state.pathParameters['id']!,
+      ),
+    ),
+
+    GoRoute(
+      path: '/salary-slips/:id',
+      builder: (context, state) => SalarySlipDetailPage(
+        slipId: state.pathParameters['id']!,
       ),
     ),
     // GoRoute(

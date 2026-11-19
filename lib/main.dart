@@ -12,6 +12,7 @@ import 'package:hris_mobile/features/leave/cubit/leave_form_cubit.dart';
 import 'package:hris_mobile/features/overtime/cubit/overtime/overtime_cubit.dart';
 import 'package:hris_mobile/features/overtime/cubit/overtime_form/overtime_form_cubit.dart';
 import 'package:hris_mobile/features/shift-swap/cubit/shift_swap_cubit.dart';
+import 'package:hris_mobile/features/salary_slip/cubit/salary_slip_cubit.dart';
 import 'package:hris_mobile/features/warning_letter/cubit/warning_letter_cubit.dart';
 import 'package:hris_mobile/helper/push_routing.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -62,6 +63,7 @@ void main() async {
         BlocProvider(create: (_) => OvertimeFormCubit()),
         BlocProvider(create: (_) => ShiftSwapCubit(),),
         BlocProvider(create: (_) => WarningLetterCubit()),
+        BlocProvider(create: (_) => SalarySlipCubit()),
         
       ],
       child: ValueListenableBuilder<ThemeMode>(

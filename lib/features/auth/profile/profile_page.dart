@@ -15,6 +15,7 @@ import '../../../constant/theme/theme_controller.dart';
 import '../../../helper/device_helper.dart';
 import '../../../helper/storage.dart';
 import '../../approval/presentation/approval_inbox_page.dart';
+import '../../salary_slip/presentation/salary_slip_page.dart';
 import '../../warning_letter/cubit/warning_letter_cubit.dart';
 import '../../warning_letter/cubit/warning_letter_state.dart';
 import '../../warning_letter/presentation/warning_letter_page.dart';
@@ -375,7 +376,23 @@ class _ProfilePageState extends State<ProfilePage> {
 
           const SizedBox(height: 16),
 
-        
+          _Section(
+            title: 'GAJI',
+            children: [
+              _Tile(
+                icon: Icons.receipt_long_outlined,
+                title: 'Slip gaji',
+                subtitle: 'Rincian gaji setiap bulan',
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const SalarySlipPage()),
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 16),
+
           // Surat dari HR. Penanda angka muncul selama ada surat yang belum
           // dibuka, supaya tidak terlewat walaupun notifikasinya tergeser.
           BlocBuilder<WarningLetterCubit, WarningLetterState>(
