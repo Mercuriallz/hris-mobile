@@ -6,6 +6,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:hris_mobile/constant/theme/app_widget.dart';
 import 'package:hris_mobile/features/attendance-history/presentation/attendance_history_page.dart';
 import 'package:hris_mobile/features/overtime/presentation/overtime_page.dart';
+import 'package:hris_mobile/features/shift-swap/presentation/shift_swap_hub_page.dart';
 import 'package:intl/intl.dart';
 
 import '../../../constant/theme/app_color.dart';
@@ -309,6 +310,19 @@ class _AttendancePageState extends State<AttendancePage> {
                             context,
                             MaterialPageRoute(
                               builder: (_) => const AttendanceHistoryPage(),
+                            ),
+                          ),
+                        ),
+                        const Divider(height: 1, indent: 56),
+                        _MenuRow(
+                          icon: Icons.swap_horiz_rounded,
+                          title: 'Tukar Shift',
+                          subtitle:
+                              'Tukar jadwal dengan rekan dan pantau statusnya',
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const ShiftSwapHubPage(),
                             ),
                           ),
                         ),
