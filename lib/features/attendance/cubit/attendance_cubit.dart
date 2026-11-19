@@ -35,6 +35,7 @@ class AttendanceCubit extends Cubit<AttendanceState> {
         employeeShiftId,
         path: "/me/attendance/clock-in",
         successMessage: "Clock in berhasil dicatat",
+        similarityKey: "clockInFaceSimilarity",
         photoPath: photoPath,
       );
 
@@ -42,6 +43,7 @@ class AttendanceCubit extends Cubit<AttendanceState> {
         employeeShiftId,
         path: "/me/attendance/clock-out",
         successMessage: "Clock out berhasil dicatat",
+        similarityKey: "clockOutFaceSimilarity",
         photoPath: photoPath,
       );
 
@@ -54,6 +56,7 @@ class AttendanceCubit extends Cubit<AttendanceState> {
     String employeeShiftId, {
     required String path,
     required String successMessage,
+    required String similarityKey,
     String? photoPath,
   }) async {
     // Kartu yang sedang tampil disimpan supaya bisa dipancarkan ulang dengan
@@ -109,7 +112,13 @@ class AttendanceCubit extends Cubit<AttendanceState> {
       if (response.statusCode == 200 || response.statusCode == 201) {
         debugPrint("$path berhasil untuk $employeeShiftId");
 
-        emit(AttendanceActionSuccess(successMessage));
+        final similarity = _similarityFrom(response.data, similarityKey);
+
+        emit(AttendanceActionSuccess(
+          similarity == null
+              ? successMessage
+              : "$successMessage · Wajah cocok ${(similarity * 100).round()}%",
+        ));
 
        
         fetchShifts(silent: true);
@@ -133,5 +142,23 @@ class AttendanceCubit extends Cubit<AttendanceState> {
    
       if (photoPath != null) await deleteTempPhoto(photoPath);
     }
+  }
+
+  /// Kemiripan wajah dari jawaban server, 0 sampai 1.
+  ///
+  /// Kolomnya `numeric` di Postgres, yang bisa terbaca sebagai string
+  /// ("0.870") — jadi dua-duanya diterima. null kalau verifikasi wajah mati
+  /// atau tidak dicek. Server sengaja tidak mengirim skor untuk wajah yang
+  /// ditolak, jadi angka ini hanya pernah muncul di absensi yang berhasil.
+  static double? _similarityFrom(dynamic body, String key) {
+    if (body is! Map) return null;
+    final data = body['data'];
+    if (data is! Map) return null;
+
+    final raw = data[key];
+    final value = raw is num ? raw.toDouble() : double.tryParse('${raw ?? ''}');
+    if (value == null || !value.isFinite) return null;
+
+    return value.clamp(0, 1).toDouble();
   }
 }

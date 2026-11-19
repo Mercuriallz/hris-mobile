@@ -73,8 +73,13 @@ class _SplashPageState extends State<SplashPage> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  // Versi gelap tanpa kotak biru dan dengan teks putih. Logo
+                  // biasa di latar gelap membuat "work" hilang — warnanya sama
+                  // dengan latarnya.
                   SvgPicture.asset(
-                    'assets/images/workonix-logo.svg',
+                    AppColor.isDark
+                        ? 'assets/images/workonix-logo-dark.svg'
+                        : 'assets/images/workonix-logo.svg',
                     height: 52,
                   ),
                   const SizedBox(height: 14),

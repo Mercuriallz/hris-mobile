@@ -105,20 +105,23 @@ class _AttendancePageState extends State<AttendancePage> {
   // menambah apa pun.
   if (status == null || !status.needsVerification) return null;
 
-  // Belum terdaftar. Kalau wajib, backend akan menolak — jadi lebih baik
-  // diarahkan mendaftar sekarang daripada ditolak setelah mengambil foto.
+  // Belum terdaftar. Ditanya dulu, bukan langsung dilempar ke halaman
+  // pendaftaran atau diam-diam absen tanpa wajah — orangnya perlu tahu
+  // kenapa, dan yang tidak wajib perlu tahu absensinya akan ditandai HR.
   if (status.enrolled != true) {
-    if (status.isRequired == true) {
-      final enrolled = await Navigator.push<bool>(
-        context,
-        MaterialPageRoute(builder: (_) => const FaceEnrollPage()),
-      );
+    final choice = await _askToEnroll(required: status.isRequired == true);
+    if (!mounted) return '';
 
-      if (enrolled != true) return '';
-      await _loadFaceStatus();
-      if (!mounted) return '';
-    } else {
-      return null;
+    switch (choice) {
+      case _EnrollChoice.skip:
+        return null;
+      case _EnrollChoice.cancel:
+        return '';
+      case _EnrollChoice.enroll:
+        // Setelah berhasil, alurnya lanjut ke pemindaian di bawah — orang
+        // yang menekan Clock In tidak perlu menekannya lagi.
+        if (!await _openEnroll()) return '';
+        if (!mounted) return '';
     }
   }
 
@@ -134,6 +137,24 @@ class _AttendancePageState extends State<AttendancePage> {
 
   return path ?? '';
 }
+
+  Future<bool> _openEnroll() async {
+    final enrolled = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(builder: (_) => const FaceEnrollPage()),
+    );
+    await _loadFaceStatus();
+    return enrolled == true;
+  }
+
+  Future<_EnrollChoice> _askToEnroll({required bool required}) async {
+    final choice = await showDialog<_EnrollChoice>(
+      context: context,
+      builder: (context) => _EnrollPromptDialog(required: required),
+    );
+    return choice ?? _EnrollChoice.cancel;
+  }
+
   @override
   void dispose() {
     _clock?.cancel();
@@ -193,7 +214,7 @@ class _AttendancePageState extends State<AttendancePage> {
             onRefresh: () async {
             
               context.read<AttendanceCubit>().fetchShifts(silent: true);
-              await _loadSummary();
+              await Future.wait([_loadSummary(), _loadFaceStatus()]);
             },
             child: ListView(
               padding: EdgeInsets.zero,
@@ -226,6 +247,18 @@ class _AttendancePageState extends State<AttendancePage> {
                           ),
                   ),
                 ),
+
+                // Diberi tahu sebelum jam absen, bukan saat buru-buru di depan
+                // pintu dengan antrean di belakangnya.
+                if (_faceStatus?.needsVerification == true &&
+                    _faceStatus?.enrolled != true)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                    child: _FaceEnrollBanner(
+                      required: _faceStatus?.isRequired == true,
+                      onEnroll: _openEnroll,
+                    ),
+                  ),
 
                 if (others.isNotEmpty) ...[
                   Padding(
@@ -1156,5 +1189,142 @@ class _UpcomingShifts extends StatelessWidget {
   static String _clock(String? iso) {
     if (iso == null) return '--:--';
     return DateFormat('HH:mm').format(DateTime.parse(iso).toLocal());
+  }
+}
+
+enum _EnrollChoice { enroll, skip, cancel }
+
+/// Ditampilkan saat Clock In ditekan, perusahaan memakai verifikasi wajah,
+/// dan wajah orangnya belum terdaftar.
+///
+/// Yang tidak wajib tetap boleh absen tanpa wajah — tapi harus tahu bahwa
+/// absensinya ditandai untuk ditinjau HR. Tanda yang muncul belakangan tanpa
+/// penjelasan terasa seperti tuduhan.
+class _EnrollPromptDialog extends StatelessWidget {
+  final bool required;
+
+  const _EnrollPromptDialog({required this.required});
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      insetPadding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Center(
+              child: Container(
+                width: 56,
+                height: 56,
+                decoration: BoxDecoration(
+                  color: AppColor.primarySurface,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.face_retouching_natural,
+                  size: 28,
+                  color: AppColor.primary,
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Daftarkan wajah dulu',
+              textAlign: TextAlign.center,
+              style: AppText.h2,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              required
+                  ? 'Perusahaan Anda mewajibkan verifikasi wajah untuk '
+                      'absensi, dan wajah Anda belum terdaftar. Pendaftaran '
+                      'cukup sekali dan butuh kurang dari satu menit.'
+                  : 'Perusahaan Anda memakai verifikasi wajah untuk absensi, '
+                      'dan wajah Anda belum terdaftar. Anda tetap bisa absen '
+                      'tanpa wajah, tapi absensinya akan ditandai untuk '
+                      'ditinjau HR.',
+              textAlign: TextAlign.center,
+              style: AppText.body.copyWith(color: AppColor.textSecondary),
+            ),
+            const SizedBox(height: 20),
+            FilledButton.icon(
+              onPressed: () => Navigator.pop(context, _EnrollChoice.enroll),
+              icon: const Icon(Icons.camera_alt_outlined, size: 20),
+              label: const Text('Daftarkan Sekarang'),
+            ),
+            const SizedBox(height: 4),
+            TextButton(
+              onPressed: () => Navigator.pop(
+                context,
+                required ? _EnrollChoice.cancel : _EnrollChoice.skip,
+              ),
+              style: TextButton.styleFrom(
+                foregroundColor: AppColor.textSecondary,
+                minimumSize: const Size.fromHeight(44),
+              ),
+              child: Text(required ? 'Batal' : 'Absen Tanpa Wajah'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Pengingat di halaman absensi selama wajah belum terdaftar.
+///
+/// Hilang sendiri setelah pendaftaran berhasil — status wajah dimuat ulang
+/// saat kembali dari halaman pendaftaran dan saat halaman ditarik ke bawah.
+class _FaceEnrollBanner extends StatelessWidget {
+  final bool required;
+  final VoidCallback onEnroll;
+
+  const _FaceEnrollBanner({required this.required, required this.onEnroll});
+
+  @override
+  Widget build(BuildContext context) {
+    final tone = required ? AppColor.warning : AppColor.primary;
+
+    return Material(
+      color: required ? AppColor.warningSurface : AppColor.primarySurface,
+      borderRadius: BorderRadius.circular(14),
+      child: InkWell(
+        onTap: onEnroll,
+        borderRadius: BorderRadius.circular(14),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(14, 12, 8, 12),
+          child: Row(
+            children: [
+              Icon(Icons.face_retouching_natural, size: 22, color: tone),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Wajah belum terdaftar', style: AppText.bodyStrong),
+                    const SizedBox(height: 2),
+                    Text(
+                      required
+                          ? 'Wajib didaftarkan sebelum bisa absen.'
+                          : 'Daftarkan agar absensi tidak ditandai untuk '
+                              'ditinjau HR.',
+                      style: AppText.caption,
+                    ),
+                  ],
+                ),
+              ),
+              TextButton(
+                onPressed: onEnroll,
+                style: TextButton.styleFrom(foregroundColor: tone),
+                child: const Text('Daftarkan'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
