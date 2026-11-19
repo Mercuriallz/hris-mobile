@@ -12,7 +12,20 @@ import '../../../constant/theme/app_text.dart';
 import '../../../helper/face_embedding_service.dart';
 
 
-const int _stableFramesRequired = 8;
+/// Lama wajah harus diam di posisi yang benar sebelum foto diambil. Kalau
+/// terlalu singkat, fotonya sering masih goyang dan wajahnya tidak terbaca.
+const Duration _holdDuration = Duration(milliseconds: 1500);
+
+/// Jeda setelah aliran kamera dihentikan, supaya cahaya dan fokus kamera
+/// (terutama iPhone) stabil dulu sebelum memotret.
+const Duration _settleDelay = Duration(milliseconds: 300);
+
+/// Berapa kali foto diambil ulang otomatis kalau wajahnya tidak terbaca di
+/// foto, sebelum menyerah dan menampilkan pesan error.
+const int _maxPhotoAttempts = 3;
+
+/// Lama pesan "mengambil ulang" terlihat sebelum pemindaian dilanjutkan.
+const Duration _retryNotice = Duration(milliseconds: 900);
 
 
 const double _minFaceRatio = 0.22;
@@ -44,6 +57,7 @@ enum ScanGuidance {
   eyesClosed,
   holdStill,
   capturing,
+  retrying,
   done,
 }
 
@@ -72,7 +86,9 @@ class _FaceScanPageState extends State<FaceScanPage>
   FaceDetector? _detector;
 
   ScanGuidance _guidance = ScanGuidance.starting;
-  int _stableFrames = 0;
+  DateTime? _holdSince;
+  double _holdProgress = 0;
+  int _photoAttempts = 0;
 
 
   bool _busy = false;
@@ -171,9 +187,13 @@ class _FaceScanPageState extends State<FaceScanPage>
           HapticFeedback.selectionClick();
         }
 
-        _stableFrames += 1;
+        final now = DateTime.now();
+        _holdSince ??= now;
+        final held = now.difference(_holdSince!);
+        _holdProgress =
+            (held.inMilliseconds / _holdDuration.inMilliseconds).clamp(0, 1);
 
-        if (_stableFrames >= _stableFramesRequired) {
+        if (held >= _holdDuration) {
           await _capture();
           return;
         }
@@ -184,7 +204,7 @@ class _FaceScanPageState extends State<FaceScanPage>
         return;
       }
 
-      _stableFrames = 0;
+      _resetHold();
       if (next != _guidance) setState(() => _guidance = next);
     } catch (e) {
       debugPrint('Bingkai gagal diproses: $e');
@@ -278,12 +298,44 @@ class _FaceScanPageState extends State<FaceScanPage>
       // memotret saat alirannya masih jalan, dan gagalnya berupa pengecualian
       // yang pesannya tidak menyebut alirannya.
       await _controller?.stopImageStream();
+      await Future.delayed(_settleDelay);
+      if (!mounted) return;
+
       final file = await _controller!.takePicture();
 
       if (!mounted) {
         await deleteTempPhoto(file.path);
         return;
       }
+
+      // Wajah di video belum tentu terbaca di fotonya (goyang, buram, atau
+      // gelap). Dicek di sini supaya bisa langsung diulang, bukan baru
+      // ketahuan setelah halaman ini tertutup.
+      _photoAttempts += 1;
+      final usable = await _photoHasFace(file.path);
+
+      if (!mounted) {
+        await deleteTempPhoto(file.path);
+        return;
+      }
+
+      if (!usable && _photoAttempts < _maxPhotoAttempts) {
+        await deleteTempPhoto(file.path);
+        HapticFeedback.lightImpact();
+        setState(() => _guidance = ScanGuidance.retrying);
+
+        await Future.delayed(_retryNotice);
+        if (!mounted) return;
+
+        _resetHold();
+        _captured = false;
+        setState(() => _guidance = ScanGuidance.searching);
+        await _controller?.startImageStream(_onFrame);
+        return;
+      }
+
+      // Sudah 3 kali gagal: fotonya tetap diteruskan, dan langkah berikutnya
+      // yang menampilkan pesan errornya, sama seperti sebelumnya.
 
       HapticFeedback.mediumImpact();
       setState(() => _guidance = ScanGuidance.done);
@@ -301,12 +353,35 @@ class _FaceScanPageState extends State<FaceScanPage>
       debugPrint('Gagal mengambil foto: $e');
 
       _captured = false;
-      _stableFrames = 0;
+      _resetHold();
 
       if (mounted) {
         setState(() => _guidance = ScanGuidance.searching);
         await _controller?.startImageStream(_onFrame);
       }
+    }
+  }
+
+  void _resetHold() {
+    _holdSince = null;
+    _holdProgress = 0;
+  }
+
+  /// `false` hanya kalau wajahnya memang tidak terbaca di foto. Masalah lain
+  /// (model gagal dimuat, dan sebagainya) tidak bisa diperbaiki dengan
+  /// memotret ulang, jadi fotonya diteruskan dan langkah berikutnya yang
+  /// menampilkan pesannya.
+  Future<bool> _photoHasFace(String path) async {
+    try {
+      await FaceEmbeddingService.instance.checkPhoto(path);
+      return true;
+    } on FaceFailure catch (e) {
+      return switch (e.reason) {
+        FaceFailureReason.noFace || FaceFailureReason.multipleFaces => false,
+        _ => true,
+      };
+    } catch (_) {
+      return true;
     }
   }
 
@@ -384,6 +459,12 @@ class _FaceScanPageState extends State<FaceScanPage>
         );
       case ScanGuidance.capturing:
         return (text: 'Mengambil foto', icon: null, tone: _Tone.ready);
+      case ScanGuidance.retrying:
+        return (
+          text: 'Tahan sebentar, mengambil ulang...',
+          icon: Icons.refresh,
+          tone: _Tone.adjust,
+        );
       case ScanGuidance.done:
         return (text: 'Berhasil', icon: Icons.check, tone: _Tone.ready);
     }
@@ -397,7 +478,7 @@ class _FaceScanPageState extends State<FaceScanPage>
 
   double get _progress => switch (_guidance) {
         ScanGuidance.capturing || ScanGuidance.done => 1,
-        ScanGuidance.holdStill => _stableFrames / _stableFramesRequired,
+        ScanGuidance.holdStill => _holdProgress,
         _ => 0,
       };
 

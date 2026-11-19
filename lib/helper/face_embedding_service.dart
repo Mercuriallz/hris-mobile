@@ -37,6 +37,10 @@ class FaceEmbeddingService {
   Interpreter? _interpreter;
   FaceDetector? _detector;
 
+  /// Detektor cadangan dengan mode cepat, sama seperti saat memindai video.
+  /// Dipakai kalau mode teliti tidak menemukan wajah di foto.
+  FaceDetector? _fastDetector;
+
   int _inputSize = 112;
   int _outputSize = 192;
 
@@ -82,18 +86,10 @@ class FaceEmbeddingService {
   Future<List<double>> embedFromFile(String path) async {
     await _ensureReady();
 
-    final face = await _detectSingleFace(path);
-    final bytes = await File(path).readAsBytes();
+    final upright = await _loadUpright(path);
+    final face = await _detectSingleFace(path, upright);
 
-    final decoded = img.decodeImage(bytes);
-    if (decoded == null) {
-      throw const FaceFailure(
-        FaceFailureReason.processingFailed,
-        'Foto tidak bisa dibaca. Coba ambil ulang.',
-      );
-    }
-
-    final cropped = _cropFace(decoded, face);
+    final cropped = _cropFace(upright, face);
     final resized = img.copyResize(
       cropped,
       width: _inputSize,
@@ -104,8 +100,69 @@ class FaceEmbeddingService {
     return _runModel(resized);
   }
 
-  Future<Face> _detectSingleFace(String path) async {
-    final faces = await _detector!.processImage(InputImage.fromFilePath(path));
+  /// Memastikan foto berisi tepat satu wajah, tanpa menghitung embedding-nya.
+  /// Melempar [FaceFailure] kalau tidak.
+  Future<void> checkPhoto(String path) async {
+    await _ensureReady();
+    await _detectSingleFace(path, await _loadUpright(path));
+  }
+
+  /// Membaca foto dan memutarnya sampai benar-benar tegak.
+  ///
+  /// Kamera iPhone tidak memutar piksel fotonya: foto disimpan menyamping
+  /// (dan untuk kamera depan, dicerminkan) dengan label orientasi EXIF.
+  /// ML Kit membaca label itu kurang tepat sehingga wajahnya tidak
+  /// terdeteksi, dan pemotongan wajah di bawah mengabaikannya sama sekali.
+  /// Dengan memutar pikselnya di sini, deteksi dan pemotongan sama-sama
+  /// bekerja pada gambar yang sama persis.
+  ///
+  /// Khusus iOS. Di Android cara lama sudah berjalan, dan wajah karyawan yang
+  /// sudah terdaftar dihitung dari cara itu — mengubahnya bisa membuat wajah
+  /// mereka tidak cocok lagi.
+  Future<img.Image> _loadUpright(String path) async {
+    final bytes = await File(path).readAsBytes();
+    final decoded = img.decodeImage(bytes);
+
+    if (decoded == null) {
+      throw const FaceFailure(
+        FaceFailureReason.processingFailed,
+        'Foto tidak bisa dibaca. Coba ambil ulang.',
+      );
+    }
+
+    return Platform.isIOS ? img.bakeOrientation(decoded) : decoded;
+  }
+
+  Future<Face> _detectSingleFace(String path, img.Image upright) async {
+    // ML Kit hanya menerima berkas atau bita mentah, jadi di iOS gambar yang
+    // sudah tegak ditulis ulang ke berkas sementara tanpa label orientasi.
+    final temp = Platform.isIOS
+        ? File(
+            '${Directory.systemTemp.path}/face_${DateTime.now().microsecondsSinceEpoch}.jpg',
+          )
+        : null;
+
+    List<Face> faces;
+    try {
+      if (temp != null) {
+        await temp.writeAsBytes(img.encodeJpg(upright, quality: 95));
+      }
+      final input = InputImage.fromFilePath(temp?.path ?? path);
+
+      faces = await _detector!.processImage(input);
+
+      if (faces.isEmpty) {
+        _fastDetector ??= FaceDetector(
+          options: FaceDetectorOptions(
+            performanceMode: FaceDetectorMode.fast,
+            minFaceSize: 0.15,
+          ),
+        );
+        faces = await _fastDetector!.processImage(input);
+      }
+    } finally {
+      if (temp != null && await temp.exists()) await temp.delete();
+    }
 
     if (faces.isEmpty) {
       throw const FaceFailure(
