@@ -1,3 +1,4 @@
+import '../../../../helper/session_events.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -142,6 +143,7 @@ class LoginCubit extends Cubit<LoginState> {
       PushRouting.clear();
       await PushService.unregister();
     await SecureStorageService().clearSession();
+    SessionEvents.notifyCleared();
     emit(LoginInitial());
   }
 }

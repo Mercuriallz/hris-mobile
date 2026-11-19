@@ -1,10 +1,19 @@
+import 'dart:async';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../../../helper/session_events.dart';
 
 import '../repository/warning_letter_repository.dart';
 import 'warning_letter_state.dart';
 
 class WarningLetterCubit extends Cubit<WarningLetterState> {
-  WarningLetterCubit() : super(WarningLetterInitial());
+  WarningLetterCubit() : super(WarningLetterInitial()) {
+    // Data pribadi: dikosongkan begitu sesi berakhir.
+    _sessionSub = SessionEvents.cleared.listen((_) => reset());
+  }
+
+  late final StreamSubscription<void> _sessionSub;
 
   /// Jumlah surat yang belum dibuka, untuk penanda di menu Profil.
   int get unreadCount {
@@ -32,6 +41,14 @@ class WarningLetterCubit extends Cubit<WarningLetterState> {
     ]));
   }
 
-  void reset() => emit(WarningLetterInitial());
+  void reset() {
+    if (!isClosed) emit(WarningLetterInitial());
+  }
+
+  @override
+  Future<void> close() {
+    _sessionSub.cancel();
+    return super.close();
+  }
 }
 

@@ -13,6 +13,7 @@ String errorMessage(Object error) {
   if (error is DioException) {
     if (error.type == DioExceptionType.connectionError ||
         error.type == DioExceptionType.connectionTimeout ||
+        error.type == DioExceptionType.sendTimeout ||
         error.type == DioExceptionType.receiveTimeout) {
       return 'Tidak bisa menghubungi server. Periksa koneksi internet Anda.';
     }
@@ -24,7 +25,7 @@ String errorMessage(Object error) {
       // ValidationPipe mengembalikan message sebagai array. Diambil yang
       // pertama saja — menampilkan sepuluh baris sekaligus tidak membantu.
       if (raw is List && raw.isNotEmpty) return raw.first.toString();
-      if (raw != null) return raw.toString();
+      if (raw is String && raw.isNotEmpty) return raw;
     }
 
     return 'Terjadi kesalahan pada server.';
@@ -51,7 +52,7 @@ String errorMessageFromResponse(Response response) {
   if (data is Map) {
     final raw = data['message'];
     if (raw is List && raw.isNotEmpty) return raw.first.toString();
-    if (raw != null) return raw.toString();
+    if (raw is String && raw.isNotEmpty) return raw;
   }
 
   return 'Terjadi kesalahan pada server.';

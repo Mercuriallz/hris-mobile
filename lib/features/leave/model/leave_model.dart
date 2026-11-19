@@ -46,7 +46,7 @@ class LeaveBalanceData {
   });
 
   LeaveBalanceData.fromJson(Map<String, dynamic> json) {
-    periodYear = json['periodYear'];
+    periodYear = _toDouble(json['periodYear'])?.toInt();
     entitled = _toDouble(json['entitled']);
     used = _toDouble(json['used']);
     remaining = _toDouble(json['remaining']);
@@ -327,7 +327,7 @@ class LeaveRequestData {
     workingDays = _toDouble(json['workingDays']);
     paidDays = _toDouble(json['paidDays']);
     unpaidDays = _toDouble(json['unpaidDays']);
-    periodYear = json['periodYear'];
+    periodYear = _toDouble(json['periodYear'])?.toInt();
     reason = json['reason'];
     contactDuringLeave = json['contactDuringLeave'];
     createdAt = json['createdAt'];

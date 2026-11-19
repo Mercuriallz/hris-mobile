@@ -117,22 +117,22 @@ class AttendanceHistoryData {
     shiftName = json['shiftName'];
     scheduledStart = json['scheduledStart'];
     scheduledEnd = json['scheduledEnd'];
-    lateToleranceMinutes = json['lateToleranceMinutes'];
-    utcOffsetMinutes = json['utcOffsetMinutes'];
+    lateToleranceMinutes = _toInt(json['lateToleranceMinutes']);
+    utcOffsetMinutes = _toInt(json['utcOffsetMinutes']);
     office = json['office'] != null ? Office.fromJson(json['office']) : null;
     clockInAt = json['clockInAt'];
     clockInLatitude = _toDouble(json['clockInLatitude']);
     clockInLongitude = _toDouble(json['clockInLongitude']);
-    clockInAccuracy = json['clockInAccuracy'];
-    clockInDistanceMeters = json['clockInDistanceMeters'];
+    clockInAccuracy = _toInt(json['clockInAccuracy']);
+    clockInDistanceMeters = _toInt(json['clockInDistanceMeters']);
     clockInIsMocked = json['clockInIsMocked'];
     clockOutAt = json['clockOutAt'];
     clockOutLatitude = _toDouble(json['clockOutLatitude']);
     clockOutLongitude = _toDouble(json['clockOutLongitude']);
-    clockOutAccuracy = json['clockOutAccuracy'];
-    clockOutDistanceMeters = json['clockOutDistanceMeters'];
+    clockOutAccuracy = _toInt(json['clockOutAccuracy']);
+    clockOutDistanceMeters = _toInt(json['clockOutDistanceMeters']);
     clockOutIsMocked = json['clockOutIsMocked'];
-    lateMinutes = json['lateMinutes'];
+    lateMinutes = _toInt(json['lateMinutes']);
     needsReview = json['needsReview'];
     reviewReason = json['reviewReason'];
     source = json['source'];
@@ -203,7 +203,7 @@ class Office {
     name = json['name'];
     latitude = _toDouble(json['latitude']);
     longitude = _toDouble(json['longitude']);
-    radiusMeters = json['radiusMeters'];
+    radiusMeters = _toInt(json['radiusMeters']);
   }
 
   Map<String, dynamic> toJson() {
@@ -223,6 +223,10 @@ double? _toDouble(dynamic value) {
   if (value is int) return value.toDouble();
   return double.tryParse(value.toString());
 }
+
+/// Angka bulat dari JSON yang bisa berupa int, double (12.5), atau teks ("5").
+/// Satu nilai yang tipenya meleset tidak boleh menggagalkan seluruh riwayat.
+int? _toInt(dynamic value) => _toDouble(value)?.round();
 
 
 class HistorySummary {

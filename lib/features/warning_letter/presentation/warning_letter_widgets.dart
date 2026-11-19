@@ -36,9 +36,12 @@ StatusTone warningStatusTone(String status) {
 
 final _date = DateFormat('d MMM yyyy', 'id_ID');
 
+/// Tanggal surat untuk ditampilkan. Tanggal yang tidak bisa dibaca tampil
+/// "-", bukan melempar error di tengah build dan merusak seluruh layar.
 String formatLetterDate(String iso) {
   if (iso.isEmpty) return '-';
-  return _date.format(DateTime.parse(iso));
+  final parsed = DateTime.tryParse(iso);
+  return parsed == null ? '-' : _date.format(parsed);
 }
 
 class WarningLevelBadge extends StatelessWidget {
@@ -91,20 +94,31 @@ class WarningLetterCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Badge tingkat dan "Baru" boleh turun baris saat teks diperbesar,
+              // supaya tidak terpotong di layar kecil.
               Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  WarningLevelBadge(level: letter.level),
-                  const SizedBox(width: 8),
-                  if (letter.isUnread)
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: AppColor.primary,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Text('Baru', style: AppText.label.copyWith(color: Colors.white)),
+                  Expanded(
+                    child: Wrap(
+                      spacing: 8,
+                      runSpacing: 6,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [
+                        WarningLevelBadge(level: letter.level),
+                        if (letter.isUnread)
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: AppColor.primary,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Text('Baru', style: AppText.label.copyWith(color: Colors.white)),
+                          ),
+                      ],
                     ),
-                  const Spacer(),
+                  ),
+                  const SizedBox(width: 8),
                   StatusBadge(label: letter.statusLabel, tone: warningStatusTone(letter.status)),
                 ],
               ),

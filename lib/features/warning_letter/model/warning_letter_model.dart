@@ -37,7 +37,11 @@ class WarningLetter {
   });
 
   factory WarningLetter.fromJson(Map<String, dynamic> json) => WarningLetter(
-        id: json['id'] as String,
+        // Angka juga diterima (seperti Slip Gaji); tanpa id, suratnya tidak
+        // bisa dibuka, jadi ditolak.
+        id: json['id'] == null
+            ? throw const FormatException('Surat tanpa id')
+            : json['id'].toString(),
         level: json['level'] as String? ?? 'verbal',
         letterNumber: json['letterNumber'] as String? ?? '',
         issuedDate: json['issuedDate'] as String? ?? '',

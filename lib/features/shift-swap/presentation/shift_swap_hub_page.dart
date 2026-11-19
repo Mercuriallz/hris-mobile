@@ -53,8 +53,10 @@ class _ShiftSwapHubPageState extends State<ShiftSwapHubPage> {
     final myRequests = await requestsCall;
     if (!mounted) return;
 
+    // Jadwal gagal dimuat → _shifts tetap null supaya layar error dengan
+    // tombol Coba Lagi yang tampil, bukan "Belum ada jadwal mendatang".
     String? error;
-    List<AttendanceHistoryData> shifts = [];
+    List<AttendanceHistoryData>? shifts;
     List<SwapRequestData> requests = [];
 
     history.fold(

@@ -18,6 +18,9 @@ const kHiddenAmount = 'Rp •••••••';
 
 /// "2026-11" → "November 2026".
 String formatSlipMonth(String month) {
+  // Dicek dulu polanya: DateTime.tryParse('2026-13-01') diam-diam jadi
+  // Januari 2027, bukan dianggap tidak valid.
+  if (!RegExp(r'^\d{4}-(0[1-9]|1[0-2])$').hasMatch(month)) return month;
   final parsed = DateTime.tryParse('$month-01');
   return parsed == null ? month : _monthYear.format(parsed);
 }
@@ -36,7 +39,9 @@ String formatDays(double days) =>
 
 /// Hanya 4 digit terakhir yang terlihat: "•••• 7890".
 String maskAccountNumber(String number) {
-  final digits = number.replaceAll(RegExp(r'\s+'), '');
+  // Pemisah apa pun (spasi, "-", ".") dibuang supaya yang terlihat benar-benar
+  // 4 digit terakhir.
+  final digits = number.replaceAll(RegExp(r'[^0-9A-Za-z]'), '');
   if (digits.isEmpty) return '-';
   if (digits.length <= 4) return digits;
   return '•••• ${digits.substring(digits.length - 4)}';

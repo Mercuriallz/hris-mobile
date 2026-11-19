@@ -225,7 +225,8 @@ class _Header extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        WarningLevelBadge(level: letter.level, large: true),
+        Flexible(child: WarningLevelBadge(level: letter.level, large: true)),
+        const SizedBox(width: 8),
         const Spacer(),
         StatusBadge(label: letter.statusLabel, tone: warningStatusTone(letter.status)),
       ],

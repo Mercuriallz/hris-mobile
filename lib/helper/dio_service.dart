@@ -1,3 +1,4 @@
+import 'session_events.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -47,6 +48,7 @@ class DioService {
 
           if (status == 401) {
             await storage.clearSession();
+            SessionEvents.notifyCleared();
             onUnauthorized?.call();
           }
 
