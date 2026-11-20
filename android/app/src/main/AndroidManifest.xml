@@ -1,4 +1,15 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+<!--
+  Izin galeri ini ikut masuk dari library open_filex, padahal aplikasi hanya
+  membuka PDF miliknya sendiri (slip gaji, surat peringatan) dari folder
+  sementara, dan memilih foto lewat image_picker (Android Photo Picker), yang
+  tidak butuh izin. Google Play menolak izin galeri penuh tanpa alasan kuat,
+  jadi dibuang dari manifest akhir.
+-->
+<uses-permission android:name="android.permission.READ_MEDIA_IMAGES" tools:node="remove" />
+<uses-permission android:name="android.permission.READ_MEDIA_VIDEO" tools:node="remove" />
+<uses-permission android:name="android.permission.READ_MEDIA_AUDIO" tools:node="remove" />
 <uses-permission android:name="android.permission.INTERNET"/>
 <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
