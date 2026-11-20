@@ -19,6 +19,7 @@ import '../../salary_slip/presentation/salary_slip_page.dart';
 import '../../warning_letter/cubit/warning_letter_cubit.dart';
 import '../../warning_letter/cubit/warning_letter_state.dart';
 import '../../warning_letter/presentation/warning_letter_page.dart';
+import 'presentation/personal_data_page.dart';
 
 
 /// Profil karyawan.
@@ -353,6 +354,23 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
 
           const SizedBox(height: 20),
+
+          _Section(
+            title: 'DATA DIRI',
+            children: [
+              _Tile(
+                icon: Icons.badge_outlined,
+                title: 'Data diri lengkap',
+                subtitle: 'Kepegawaian, data pribadi, rekening',
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const PersonalDataPage()),
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 16),
 
           _Section(
             title: 'PERANGKAT ABSENSI',

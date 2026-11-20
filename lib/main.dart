@@ -5,6 +5,7 @@ import 'package:hris_mobile/features/approval/cubit/approval_cubit.dart';
 import 'package:hris_mobile/features/approval/cubit/approval_detail_cubit.dart';
 import 'package:hris_mobile/features/attendance-history/cubit/attendance_history_cubit.dart';
 import 'package:hris_mobile/features/auth/login/cubit/login_cubit.dart';
+import 'package:hris_mobile/features/auth/profile/cubit/my_profile_cubit.dart';
 import 'package:hris_mobile/features/auth/profile/cubit/photo_cubit.dart';
 import 'package:hris_mobile/features/face/cubit/face_enroll_cubit.dart';
 import 'package:hris_mobile/features/leave/cubit/leave_cubit.dart';
@@ -64,6 +65,7 @@ void main() async {
         BlocProvider(create: (_) => ShiftSwapCubit(),),
         BlocProvider(create: (_) => WarningLetterCubit()),
         BlocProvider(create: (_) => SalarySlipCubit()),
+        BlocProvider(create: (_) => MyProfileCubit()),
         
       ],
       child: ValueListenableBuilder<ThemeMode>(
