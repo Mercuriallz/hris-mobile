@@ -103,12 +103,12 @@ class _LoginPageState extends State<LoginPage> {
               Text('Masuk ke akun Anda', style: AppText.h1),
               const SizedBox(height: 4),
               Text(
-                'Gunakan email kantor yang terdaftar di HR.',
+                'Gunakan email kantor atau email pribadi yang terdaftar di HR.',
                 style: AppText.caption,
               ),
               const SizedBox(height: 28),
 
-              _FieldLabel('Email kantor'),
+              _FieldLabel('Email kantor atau pribadi'),
               TextField(
                 controller: _emailController,
                 keyboardType: TextInputType.emailAddress,
@@ -119,7 +119,7 @@ class _LoginPageState extends State<LoginPage> {
                 onChanged: (_) => setState(() {}),
                 onSubmitted: (_) => _passwordFocus.requestFocus(),
                 decoration: const InputDecoration(
-                  hintText: 'nama@perusahaan.com',
+                  hintText: 'nama@perusahaan.com atau email pribadi',
                   prefixIcon: Icon(Icons.alternate_email_rounded, size: 20),
                 ),
               ),
