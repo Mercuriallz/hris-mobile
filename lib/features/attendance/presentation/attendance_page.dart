@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:hris_mobile/constant/theme/app_widget.dart';
 import 'package:hris_mobile/features/attendance-history/presentation/attendance_history_page.dart';
+import 'package:hris_mobile/features/timesheet/presentation/timesheet_page.dart';
 import 'package:hris_mobile/features/overtime/presentation/overtime_page.dart';
 import 'package:hris_mobile/features/shift-swap/presentation/shift_swap_hub_page.dart';
 import 'package:intl/intl.dart';
@@ -347,6 +348,17 @@ class _AttendancePageState extends State<AttendancePage> {
                             context,
                             MaterialPageRoute(
                               builder: (_) => const OvertimePage(),
+                            ),
+                          ),
+                        ),
+                        _MenuRow(
+                          icon: Icons.assignment_outlined,
+                          title: 'Daily Timesheet',
+                          subtitle: 'Catat pekerjaan harian dan lihat aktivitas tim',
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const TimesheetPage(),
                             ),
                           ),
                         ),
