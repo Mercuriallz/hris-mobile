@@ -295,17 +295,6 @@ class _DraftCardState extends State<_DraftCard> {
 
   DateTime get _today => DateUtils.dateOnly(DateTime.now());
   bool get _isToday => DateUtils.isSameDay(d.date, _today);
-  bool get _isYesterday => DateUtils.isSameDay(d.date, _today.subtract(const Duration(days: 1)));
-
-  Future<void> _pickDate() async {
-    final p = await showDatePicker(
-      context: context,
-      initialDate: d.date.isAfter(_today) ? _today : d.date,
-      firstDate: DateTime(2020),
-      lastDate: _today,
-    );
-    if (p != null) _set(() => d.date = p);
-  }
 
   Future<void> _pickTime(bool start) async {
     final cur = start ? d.startMinutes : d.endMinutes;
@@ -331,7 +320,6 @@ class _DraftCardState extends State<_DraftCard> {
   @override
   Widget build(BuildContext context) {
     final o = widget.options;
-    final customDate = !_isToday && !_isYesterday;
 
     return Card(
       child: Padding(
@@ -381,20 +369,17 @@ class _DraftCardState extends State<_DraftCard> {
 
             const _Divider(),
             _Label('Kapan?'),
+            // Aktivitas hanya boleh dicatat untuk hari ini (aturan server), jadi tanggal tidak bisa diubah.
             Wrap(spacing: 8, runSpacing: 8, children: [
-              _Choice(label: 'Hari ini', selected: _isToday, onTap: () => _set(() => d.date = _today)),
               _Choice(
-                label: 'Kemarin',
-                selected: _isYesterday,
-                onTap: () => _set(() => d.date = _today.subtract(const Duration(days: 1))),
-              ),
-              _Choice(
-                label: customDate ? DateFormat('d MMM yyyy', 'id_ID').format(d.date) : 'Pilih tanggal',
+                label: _isToday ? 'Hari ini' : DateFormat('d MMM yyyy', 'id_ID').format(d.date),
                 icon: Icons.calendar_today_outlined,
-                selected: customDate,
-                onTap: _pickDate,
+                selected: true,
+                onTap: () {},
               ),
             ]),
+            const SizedBox(height: 6),
+            Text('Hanya bisa dicatat untuk hari ini.', style: Theme.of(context).textTheme.bodySmall),
             const SizedBox(height: 12),
             Row(children: [
               Expanded(child: _TimeTile(label: 'Mulai', value: TimesheetDraft.hhmm(d.startMinutes), onTap: () => _pickTime(true))),
