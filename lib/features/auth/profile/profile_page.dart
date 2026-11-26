@@ -16,6 +16,7 @@ import '../../../helper/device_helper.dart';
 import '../../../helper/storage.dart';
 import '../../approval/presentation/approval_inbox_page.dart';
 import '../../salary_slip/presentation/salary_slip_page.dart';
+import '../../salary_slip/presentation/salary_slip_pin_gate.dart';
 import '../../warning_letter/cubit/warning_letter_cubit.dart';
 import '../../warning_letter/cubit/warning_letter_state.dart';
 import '../../warning_letter/presentation/warning_letter_page.dart';
@@ -400,10 +401,10 @@ class _ProfilePageState extends State<ProfilePage> {
               _Tile(
                 icon: Icons.receipt_long_outlined,
                 title: 'Slip gaji',
-                subtitle: 'Rincian gaji setiap bulan',
+                subtitle: 'Rincian gaji setiap bulan, dilindungi PIN',
                 onTap: () => Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (_) => const SalarySlipPage()),
+                  MaterialPageRoute(builder: (_) => const SalarySlipGate(child: SalarySlipPage())),
                 ),
               ),
             ],

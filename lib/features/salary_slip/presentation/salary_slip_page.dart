@@ -7,6 +7,7 @@ import '../../../constant/theme/app_widget.dart';
 import '../cubit/salary_slip_cubit.dart';
 import '../cubit/salary_slip_state.dart';
 import '../model/salary_slip_model.dart';
+import 'salary_slip_pin_gate.dart';
 import 'salary_slip_widgets.dart';
 
 /// Daftar slip gaji milik sendiri, terbaru di atas.
@@ -41,6 +42,17 @@ class _SalarySlipPageState extends State<SalarySlipPage> {
             tooltip: _showAmount ? 'Sembunyikan nominal' : 'Tampilkan nominal',
             icon: Icon(_showAmount ? Icons.visibility_off_outlined : Icons.visibility_outlined),
             onPressed: () => setState(() => _showAmount = !_showAmount),
+          ),
+          PopupMenuButton<String>(
+            tooltip: 'Menu',
+            onSelected: (v) async {
+              if (v != 'pin') return;
+              final changed = await showDialog<bool>(context: context, builder: (_) => const SlipPinChangeDialog());
+              if (changed == true && context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('PIN diganti')));
+              }
+            },
+            itemBuilder: (_) => const [PopupMenuItem(value: 'pin', child: Text('Ganti PIN'))],
           ),
         ],
       ),
